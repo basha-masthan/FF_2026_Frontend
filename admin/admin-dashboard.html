@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Admin Dashboard - Future Bound</title>
+    <link rel="stylesheet" href="../css/admin-dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-dashboard">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Future Bound</span>
+                </div>
+                <div class="admin-badge">
+                    <i class="fas fa-crown"></i>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="overview">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#" class="nav-item" data-section="tournaments">
+                    <i class="fas fa-trophy"></i>
+                    <span>Tournaments</span>
+                </a>
+                <a href="#" class="nav-item" data-section="registrations">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Registrations</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-info">
+                    <div class="admin-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="admin-details">
+                        <span class="admin-name">Administrator</span>
+                        <span class="admin-role">Super Admin</span>
+                    </div>
+                </div>
+                <button onclick="adminLogout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Dashboard Overview</h1>
+                </div>
+                <div class="header-right">
+                    <div class="header-notifications">
+                        <button class="notification-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                    </div>
+                    <div class="header-time">
+                        <i class="fas fa-clock"></i>
+                        <span id="currentTime"></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="main-content">
+                <!-- Overview Section -->
+                <div id="overview-section" class="content-section active">
+                    <div class="stats-overview">
+                        <div class="stats-cards">
+                            <div class="stat-card primary">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="totalUsers">--</h3>
+                                    <p>Total Users</p>
+                                </div>
+                                <div class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+12%</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-card success">
+                                <div class="stat-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="activeTournaments">--</h3>
+                                    <p>Active Tournaments</p>
+                                </div>
+                                <div class="stat-trend neutral">
+                                    <i class="fas fa-minus"></i>
+                                    <span>0%</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-card warning">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="pendingVerifications">--</h3>
+                                    <p>Pending Verifications</p>
+                                </div>
+                                <div class="stat-trend negative">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>-5%</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-card info">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="todaySignups">--</h3>
+                                    <p>Today's Signups</p>
+                                </div>
+                                <div class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+8%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions">
+                            <h3>Quick Actions</h3>
+                            <div class="action-buttons">
+                                <a href="create-tournament.html" class="action-btn primary">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Create Tournament</span>
+                                </a>
+                                <button onclick="viewUsers()" class="action-btn secondary">
+                                    <i class="fas fa-users"></i>
+                                    <span>Manage Users</span>
+                                </button>
+                                <button onclick="viewReports()" class="action-btn tertiary">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>View Reports</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>Recent Activity</h3>
+                            <div class="activity-timeline" id="recentActivity">
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p>New user registered</p>
+                                        <span>2 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-trophy"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p>Tournament "T001" created</p>
+                                        <span>15 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p>Admin login successful</p>
+                                        <span>1 hour ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3>System Status</h3>
+                            <div class="system-status">
+                                <div class="status-item">
+                                    <span class="status-label">Server Status</span>
+                                    <span class="status-value online">
+                                        <i class="fas fa-circle"></i>
+                                        Online
+                                    </span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Database</span>
+                                    <span class="status-value online">
+                                        <i class="fas fa-circle"></i>
+                                        Connected
+                                    </span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Email Service</span>
+                                    <span class="status-value warning">
+                                        <i class="fas fa-circle"></i>
+                                        Limited
+                                    </span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Last Backup</span>
+                                    <span class="status-value">2 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <div id="users-section" class="content-section">
+                <h2>User Management</h2>
+                <div class="user-controls">
+                    <input type="text" id="userSearch" placeholder="Search users by email..." class="search-input">
+                    <button onclick="searchUsers()" class="search-btn">Search</button>
+                </div>
+
+                <div class="users-content">
+                    <div class="content-header">
+                        <h2>User Management</h2>
+                        <div class="header-actions">
+                            <input type="text" id="userSearch" placeholder="Search users..." class="search-input">
+                            <button onclick="searchUsers()" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Joined</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr>
+                                    <td colspan="5" class="loading-row">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        Loading users...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tournaments Section -->
+            <div id="tournaments-section" class="content-section">
+                <div class="tournaments-content">
+                    <div class="content-header">
+                        <h2>Tournament Management</h2>
+                        <a href="create-tournament.html" class="primary-btn">
+                            <i class="fas fa-plus"></i>
+                            Create Tournament
+                        </a>
+                    </div>
+
+                    <div class="tournaments-grid" id="tournamentsContainer">
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading tournaments...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registrations Section -->
+            <div id="registrations-section" class="content-section">
+                <div class="registrations-management">
+                    <div class="content-header">
+                        <h2>Tournament Registrations</h2>
+                        <p>Select a tournament to view registered users</p>
+                    </div>
+
+                    <!-- Tournament Selection -->
+                    <div class="tournament-selection-section">
+                        <h3>Select Tournament</h3>
+                        <div class="tournaments-grid" id="registrationTournamentsContainer">
+                            <div class="loading-state">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading tournaments...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Details -->
+                    <div id="registrationDetails" class="registration-details" style="display: none;">
+                        <div class="details-header">
+                            <button onclick="backToTournamentSelection()" class="back-btn">
+                                <i class="fas fa-arrow-left"></i>
+                                Back to Tournaments
+                            </button>
+                            <h3 id="selectedTournamentTitle">Tournament Registrations</h3>
+                        </div>
+
+                        <!-- Tournament Stats -->
+                        <div class="tournament-stats-card" id="registrationTournamentStats">
+                            <!-- Stats will be loaded here -->
+                        </div>
+
+                        <!-- Registrations Table -->
+                        <div class="data-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Contact</th>
+                                        <th>Free Fire ID</th>
+                                        <th>Team</th>
+                                        <th>Balance</th>
+                                        <th>Registration Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="registrationUsersTableBody">
+                                    <tr>
+                                        <td colspan="6" class="loading-row">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            Loading registrations...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="content-section">
+                <div class="settings-content">
+                    <div class="content-header">
+                        <h2>System Settings</h2>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <h3><i class="fas fa-envelope"></i> Email Configuration</h3>
+                            <div class="setting-item">
+                                <label>SMTP Server</label>
+                                <input type="text" value="smtp.gmail.com" readonly>
+                            </div>
+                            <div class="setting-item">
+                                <label>Admin Email</label>
+                                <input type="email" value="official4basha@gmail.com" readonly>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3><i class="fas fa-shield-alt"></i> Security Settings</h3>
+                            <div class="setting-item">
+                                <label>JWT Expiration</label>
+                                <input type="text" value="24 hours" readonly>
+                            </div>
+                            <div class="setting-item">
+                                <label>OTP Expiration</label>
+                                <input type="text" value="10 minutes" readonly>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3><i class="fas fa-server"></i> System Actions</h3>
+                            <div class="action-buttons">
+                                <button onclick="clearCache()" class="action-btn">
+                                    <i class="fas fa-broom"></i>
+                                    Clear Cache
+                                </button>
+                                <button onclick="backupData()" class="action-btn">
+                                    <i class="fas fa-download"></i>
+                                    Backup Data
+                                </button>
+                                <button onclick="systemLogs()" class="action-btn">
+                                    <i class="fas fa-file-alt"></i>
+                                    View Logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <script>
+        // Check admin authentication
+        window.addEventListener('DOMContentLoaded', () => {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            // Verify admin token
+            fetch('http://13.239.246.219/admin/verify-token', {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        loadDashboardData();
+                    });
+                } else {
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminUser');
+                    window.location.href = 'admin-login.html';
+                }
+            })
+            .catch((error) => {
+                console.error('Admin authentication failed:', error);
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                window.location.href = 'admin-login.html';
+            });
+        });
+
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        const pageTitle = document.getElementById('pageTitle');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = item.dataset.section;
+
+                // Update navigation
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+
+                // Update page title
+                const titles = {
+                    'overview': 'Dashboard Overview',
+                    'users': 'User Management',
+                    'tournaments': 'Tournament Management',
+                    'registrations': 'Tournament Registrations',
+                    'settings': 'System Settings'
+                };
+                pageTitle.textContent = titles[section] || 'Dashboard';
+
+                // Update content
+                contentSections.forEach(sec => sec.classList.remove('active'));
+                document.getElementById(section + '-section').classList.add('active');
+
+                // Load section data
+                if (section === 'users') {
+                    loadUsers();
+                } else if (section === 'tournaments') {
+                    loadTournaments();
+                } else if (section === 'registrations') {
+                    loadRegistrationTournaments();
+                }
+            });
+        });
+
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.querySelector('.admin-sidebar').classList.toggle('mobile-open');
+        });
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('http://13.239.246.219/admin/dashboard-stats', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalUsers').textContent = stats.totalUsers;
+                    document.getElementById('pendingVerifications').textContent = stats.pendingVerifications;
+                    document.getElementById('activeSessions').textContent = stats.activeSessions;
+                    document.getElementById('todaySignups').textContent = stats.todaySignups;
+
+                    // Load recent activity
+                    loadRecentActivity();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load users
+        async function loadUsers(searchTerm = '') {
+            try {
+                const response = await fetch(`http://13.239.246.219/admin/users?search=${encodeURIComponent(searchTerm)}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    displayUsers(users);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Display users in table
+        function displayUsers(users) {
+            const tbody = document.getElementById('userTableBody');
+
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.fullname}</td>
+                    <td>${user.email}</td>
+                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td><span class="status-active">Active</span></td>
+                    <td>
+                        <button onclick="viewUser('${user._id}')" class="action-btn-small">View</button>
+                        <button onclick="deleteUser('${user._id}')" class="action-btn-small delete">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Search users
+        function searchUsers() {
+            const searchTerm = document.getElementById('userSearch').value;
+            loadUsers(searchTerm);
+        }
+
+        // Load recent activity
+        async function loadRecentActivity() {
+            // Mock data for now
+            const activities = [
+                { action: 'New user registration', time: '2 minutes ago', user: 'john@example.com' },
+                { action: 'OTP verification', time: '5 minutes ago', user: 'jane@example.com' },
+                { action: 'Password reset request', time: '10 minutes ago', user: 'bob@example.com' },
+                { action: 'Login attempt', time: '15 minutes ago', user: 'alice@example.com' }
+            ];
+
+            const activityList = document.getElementById('recentActivity');
+            activityList.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <span class="activity-action">${activity.action}</span>
+                    <span class="activity-user">${activity.user}</span>
+                    <span class="activity-time">${activity.time}</span>
+                </div>
+            `).join('');
+        }
+
+
+        function loadTournaments() {
+            fetch('http://13.239.246.219/admin/tournaments', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayTournaments(data);
+            })
+            .catch(error => {
+                console.error('Error loading tournaments:', error);
+                document.getElementById('tournamentsContainer').innerHTML = '<p>Error loading tournaments</p>';
+            });
+        }
+
+        function displayTournaments(tournaments) {
+            const container = document.getElementById('tournamentsContainer');
+
+            if (tournaments.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <h3>No tournaments yet</h3>
+                        <p>Create your first tournament to get started</p>
+                        <a href="create-tournament.html" class="primary-btn">
+                            <i class="fas fa-plus"></i>
+                            Create Tournament
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tournaments.map(tournament => `
+                <div class="tournament-admin-card">
+                    <div class="card-header">
+                        <div class="tournament-info">
+                            <h4>${tournament.tournamentId}</h4>
+                            <span class="map-badge">${tournament.map}</span>
+                        </div>
+                        <div class="status-badge ${tournament.status}">
+                            ${tournament.status}
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="tournament-stats">
+                            <div class="stat">
+                                <span class="stat-label">Mode</span>
+                                <span class="stat-value">${tournament.mode.toUpperCase()}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Entry Fee</span>
+                                <span class="stat-value">$${tournament.entryFee}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Players</span>
+                                <span class="stat-value">${tournament.registeredPlayers}/${tournament.maxSlots}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Start Time</span>
+                                <span class="stat-value">${new Date(tournament.startTime).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+
+                        <div class="prize-info">
+                            <h5>Prize Pool: $${tournament.winningFee}</h5>
+                            ${tournament.prizes && tournament.prizes.perKill ?
+                                `<p>Per Kill: $${tournament.prizes.perKill}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button onclick="viewTournament('${tournament._id}')" class="action-btn secondary">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                        <button onclick="editTournament('${tournament._id}')" class="action-btn info">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button onclick="deleteTournament('${tournament._id}')" class="action-btn danger">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+
+        // Tournament actions
+        function viewTournament(id) {
+            // Navigate to tournaments section and highlight this tournament
+            document.querySelector('[data-section="tournaments"]').click();
+            // Could implement detailed view modal here
+            alert('Tournament details view - Feature coming soon');
+        }
+
+        function editTournament(id) {
+            alert('Edit tournament - Feature coming soon');
+        }
+
+        async function deleteTournament(id) {
+            if (confirm('Are you sure you want to delete this tournament? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`http://13.239.246.219/admin/tournaments/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                    });
+
+                    if (response.ok) {
+                        showNotification('Tournament deleted successfully', 'success');
+                        loadTournaments();
+                    } else {
+                        showNotification('Failed to delete tournament', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Error deleting tournament', 'error');
+                }
+            }
+        }
+
+        // User management functions
+        function viewUsers() {
+            document.querySelector('[data-section="users"]').click();
+        }
+
+        function viewUser(userId) {
+            alert('View user details - Feature coming soon');
+        }
+
+        async function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                alert('Delete user - Feature coming soon');
+            }
+        }
+
+        // Reports and analytics
+        function viewReports() {
+            showNotification('Reports feature coming soon', 'info');
+        }
+
+        // System functions
+        function clearCache() {
+            showNotification('System cache cleared successfully', 'success');
+        }
+
+        function backupData() {
+            showNotification('Database backup initiated successfully', 'success');
+        }
+
+        function systemLogs() {
+            showNotification('System logs feature coming soon', 'info');
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 100);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+
+        // Load tournaments for registration management
+        async function loadRegistrationTournaments() {
+            try {
+                const response = await fetch('http://13.239.246.219/admin/tournaments', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                });
+
+                if (response.ok) {
+                    const tournaments = await response.json();
+                    displayRegistrationTournaments(tournaments);
+                } else {
+                    showNotification('Failed to load tournaments', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading tournaments:', error);
+                showNotification('Error loading tournaments', 'error');
+            }
+        }
+
+        // Display tournaments for selection
+        function displayRegistrationTournaments(tournaments) {
+            const container = document.getElementById('registrationTournamentsContainer');
+
+            if (tournaments.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <h3>No tournaments found</h3>
+                        <p>Create tournaments first to manage registrations</p>
+                        <a href="create-tournament.html" class="primary-btn">
+                            <i class="fas fa-plus"></i>
+                            Create Tournament
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tournaments.map(tournament => `
+                <div class="tournament-admin-card">
+                    <div class="card-header">
+                        <div class="tournament-info">
+                            <h4>${tournament.tournamentId}</h4>
+                            <span class="map-badge">${tournament.map}</span>
+                        </div>
+                        <div class="status-badge ${tournament.status}">
+                            ${tournament.status}
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="tournament-stats">
+                            <div class="stat">
+                                <span class="stat-label">Mode</span>
+                                <span class="stat-value">${tournament.mode.toUpperCase()}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Entry Fee</span>
+                                <span class="stat-value">$${tournament.entryFee}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Players</span>
+                                <span class="stat-value">${tournament.registeredPlayers}/${tournament.maxSlots}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Start Time</span>
+                                <span class="stat-value">${new Date(tournament.startTime).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+
+                        <div class="prize-info">
+                            <h5>Prize Pool: $${tournament.winningFee}</h5>
+                            ${tournament.prizes && tournament.prizes.perKill ?
+                                `<p>Per Kill: $${tournament.prizes.perKill}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button onclick="viewTournamentRegistrations('${tournament._id}')" class="action-btn primary">
+                            <i class="fas fa-users"></i>
+                            View Registrations (${tournament.registeredPlayers})
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // View registrations for a specific tournament
+        async function viewTournamentRegistrations(tournamentId) {
+            try {
+                const response = await fetch(`http://13.239.246.219/admin/tournaments/${tournamentId}/registrations`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayTournamentRegistrations(data.tournament, data.registrations);
+                    document.getElementById('registrationDetails').style.display = 'block';
+                    document.getElementById('tournament-selection').style.display = 'none';
+                } else {
+                    showNotification('Failed to load tournament registrations', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading tournament registrations:', error);
+                showNotification('Error loading tournament registrations', 'error');
+            }
+        }
+
+        // Display tournament registrations
+        function displayTournamentRegistrations(tournament, registrations) {
+            // Update tournament title
+            document.getElementById('selectedTournamentTitle').textContent = `${tournament.tournamentId} - Registrations`;
+
+            // Display tournament stats
+            const statsContainer = document.getElementById('registrationTournamentStats');
+            const totalRevenue = tournament.registeredPlayers * tournament.entryFee;
+
+            statsContainer.innerHTML = `
+                <div class="stats-overview">
+                    <div class="stats-cards">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>${tournament.registeredPlayers}</h3>
+                                <p>Registered Players</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>$${totalRevenue.toFixed(2)}</h3>
+                                <p>Total Revenue</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>${tournament.maxSlots - tournament.registeredPlayers}</h3>
+                                <p>Available Slots</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card info">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>${((tournament.registeredPlayers / tournament.maxSlots) * 100).toFixed(1)}%</h3>
+                                <p>Registration Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Display registrations table
+            const tbody = document.getElementById('registrationUsersTableBody');
+
+            if (registrations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No registrations found for this tournament</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = registrations.map(registration => `
+                <tr>
+                    <td>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-details">
+                                <span class="user-name">${registration.fullname}</span>
+                                <span class="user-email">${registration.email}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-info">
+                            ${registration.mobile ? `<div><i class="fas fa-phone"></i> ${registration.mobile}</div>` : ''}
+                            ${registration.age ? `<div><i class="fas fa-birthday-cake"></i> ${registration.age} years</div>` : ''}
+                            ${registration.state ? `<div><i class="fas fa-map-marker-alt"></i> ${registration.state}</div>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="ff-id-info">
+                            <span class="ff-id">${registration.freeFireId || 'N/A'}</span>
+                            ${registration.termsAccepted ? '<i class="fas fa-check-circle terms-accepted" title="Terms Accepted"></i>' : '<i class="fas fa-times-circle terms-rejected" title="Terms Not Accepted"></i>'}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="team-info">
+                            ${registration.teamSelection ? `<span class="team-badge team-${registration.teamSelection}">${registration.teamSelection.replace('_', ' ').toUpperCase()}</span>` : '<span class="no-team">N/A</span>'}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="balance-info">
+                            <div class="balance-amount">$${registration.totalBalance.toFixed(2)}</div>
+                            <div class="balance-breakdown">
+                                <span class="deposit">D: $${registration.depositAmount.toFixed(2)}</span>
+                                <span class="winning">W: $${registration.winningAmount.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="registration-time">
+                            <div class="time-date">${new Date(registration.registrationTime).toLocaleDateString()}</div>
+                            <div class="time-time">${new Date(registration.registrationTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-active">${registration.status}</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="viewUserDetails('${registration._id}')" class="action-btn-small" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="contactUser('${registration.email}')" class="action-btn-small" title="Contact User">
+                                <i class="fas fa-envelope"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Back to tournament selection
+        function backToTournamentSelection() {
+            document.getElementById('registrationDetails').style.display = 'none';
+            document.getElementById('tournament-selection').style.display = 'block';
+            document.getElementById('selectedTournamentTitle').textContent = 'Tournament Registrations';
+        }
+
+        // User action functions
+        function viewUserDetails(userId) {
+            showNotification('User details view - Feature coming soon', 'info');
+        }
+
+        function contactUser(email) {
+            window.location.href = `mailto:${email}`;
+        }
+
+        // Admin logout
+        function adminLogout() {
+            if (confirm('Are you sure you want to logout from admin panel?')) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                window.location.href = 'admin-login.html';
+            }
+        }
+    </script>
+
+    <style>
+        /* Registrations Section Styles */
+        .registrations-content .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .registrations-content .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .registrations-content .search-input {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            width: 250px;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .registration-stats {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tournament-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            padding: 8px 0;
+        }
+
+        .tournament-id {
+            font-weight: 700;
+            color: #333;
+            font-size: 1rem;
+            text-align: center;
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .tournament-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .mode-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            box-shadow: 0 3px 6px rgba(102, 126, 234, 0.4);
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin: 6px 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mode-badge.clash_squad {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+        }
+
+        .mode-badge.battle_royal {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            box-shadow: 0 2px 4px rgba(78, 205, 196, 0.3);
+        }
+
+        .mode-badge.lone_wolf {
+            background: linear-gradient(135deg, #45b7d1 0%, #96c93d 100%);
+            box-shadow: 0 2px 4px rgba(69, 183, 209, 0.3);
+        }
+
+        .map-info {
+            font-size: 0.85rem;
+            color: #495057;
+            font-weight: 600;
+            text-align: center;
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            width: fit-content;
+            margin: 0 auto;
+        }
+
+        .entry-fee {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .status-registered {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .ff-id-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ff-id {
+            font-weight: 600;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .terms-accepted {
+            color: #28a745;
+            font-size: 0.9rem;
+        }
+
+        .terms-rejected {
+            color: #dc3545;
+            font-size: 0.9rem;
+        }
+
+        .team-info {
+            text-align: center;
+        }
+
+        .team-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .team-team_a {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .team-team_b {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .no-team {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.8rem;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .page-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination-dots {
+            padding: 0 5px;
+            color: #666;
+        }
+
+        .data-table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .data-table tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .data-table tr:hover td {
+            background-color: transparent;
+        }
+
+        /* Desktop-specific enhancements */
+        @media (min-width: 769px) {
+            .tournament-info {
+                min-height: 80px;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .mode-badge {
+                min-height: 35px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.95rem;
+                margin: 8px 0;
+            }
+
+            .tournament-id {
+                min-height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .search-input {
+                width: 100%;
+                max-width: none;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                font-size: 0.8rem;
+            }
+
+            .data-table th, .data-table td {
+                padding: 8px 10px;
+                vertical-align: top;
+            }
+
+            .data-table td:nth-child(2) {
+                min-width: 220px;
+                width: 100%;
+            }
+
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .registrations-content .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .registrations-content .search-input {
+                width: 100%;
+            }
+
+            .sort-select {
+                width: 100%;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .mode-badge {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+
+            .tournament-info {
+                text-align: center;
+            }
+
+            .tournament-details {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
+</body>
+</html>

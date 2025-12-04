@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Create Tournament - Future Bound Admin</title>
+    <link rel="stylesheet" href="../css/create-tournament.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="create-tournament-page">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <button onclick="goBack()" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </button>
+                <h1><i class="fas fa-plus-circle"></i> Create New Tournament</h1>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="tournament-form-container">
+            <form id="tournamentForm" class="tournament-creation-form">
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h2>Basic Information</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tournamentId">
+                                <i class="fas fa-hashtag"></i>
+                                Tournament ID
+                            </label>
+                            <input type="text" id="tournamentId" name="tournamentId" readonly placeholder="Auto-generated based on mode">
+                            <small>Auto-generated based on selected mode and team size</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="map">
+                                <i class="fas fa-map"></i>
+                                Map
+                            </label>
+                            <select id="map" name="map" required>
+                                <option value="">Select Map</option>
+                                <option value="BERMUDA">🏝️ BERMUDA</option>
+                                <option value="SOLARA">☀️ SOLARA</option>
+                                <option value="KALAHARI">🏜️ KALAHARI</option>
+                                <option value="PURGATORY">🔥 PURGATORY</option>
+                                <option value="IRON CAGE">⛓️ IRON CAGE</option>
+                            </select>
+                            <small>Choose the battleground map</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="mode">
+                                <i class="fas fa-users"></i>
+                                Mode
+                            </label>
+                            <select id="mode" name="mode" required onchange="toggleTeamSize()">
+                                <option value="">Select Mode</option>
+                                <option value="clash_squad">⚔️ Clash Squad</option>
+                                <option value="battle_royal">👑 Battle Royal</option>
+                                <option value="lone_wolf">🐺 Lone Wolf</option>
+                            </select>
+                            <small>Player participation mode</small>
+                        </div>
+                        <div class="form-group" id="teamSizeGroup" style="display: none;">
+                            <label for="teamSize">
+                                <i class="fas fa-users-cog"></i>
+                                Team Size
+                            </label>
+                            <select id="teamSize" name="teamSize">
+                                <option value="">Select Team Size</option>
+                                <option value="1vs1">1 vs 1 (2 players total)</option>
+                                <option value="2v2">2 vs 2 (4 players total)</option>
+                                <option value="4v4">4 vs 4 (8 players total)</option>
+                                <option value="6v6">6 vs 6 (12 players total)</option>
+                            </select>
+                            <small>Team configuration for Clash Squad and Lone Wolf modes</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxSlots">
+                                <i class="fas fa-users-cog"></i>
+                                Maximum Slots
+                            </label>
+                            <input type="number" id="maxSlots" name="maxSlots" required min="1" placeholder="100">
+                            <small>Total number of participants allowed</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Banner Selection Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-image"></i>
+                        <h2>Tournament Banner</h2>
+                        <p class="section-description">Choose an attractive banner image for your tournament</p>
+                    </div>
+                    <div class="banner-selection">
+                        <div class="banner-grid" id="bannerGrid">
+                            <!-- Banner options will be loaded here -->
+                        </div>
+                        <input type="hidden" id="selectedBanner" name="banner" value="">
+                        <div class="selected-banner-display">
+                            <p><strong>Selected Banner:</strong> <span id="selectedBannerName" style="color: #dc3545;">None - Please select a banner</span></p>
+                            <div id="bannerPreview" class="banner-preview">
+                                <span class="no-banner">⚠️ No banner selected - Tournament will use default banner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing & Schedule Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-dollar-sign"></i>
+                        <h2>Pricing & Schedule</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="entryFee">
+                                <i class="fas fa-coins"></i>
+                                Entry Fee ($)
+                            </label>
+                            <input type="number" id="entryFee" name="entryFee" required min="0" step="0.01" placeholder="5.00">
+                            <small>Cost for each participant to join</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="winningFee">
+                                <i class="fas fa-trophy"></i>
+                                Total Prize Pool ($)
+                            </label>
+                            <input type="number" id="winningFee" name="winningFee" required min="0" step="0.01" placeholder="500.00">
+                            <small>Total amount to be distributed as prizes</small>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="startTime">
+                                <i class="fas fa-calendar-alt"></i>
+                                Start Time
+                            </label>
+                            <input type="datetime-local" id="startTime" name="startTime" required>
+                            <small>When the tournament will begin</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prize Distribution Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-gift"></i>
+                        <h2>Prize Distribution</h2>
+                        <p class="section-description">Configure how prizes will be distributed among winners</p>
+                    </div>
+
+                    <div class="prize-distribution">
+                        <!-- Top 5 Prizes -->
+                        <div class="prize-option-card">
+                            <div class="prize-option-header">
+                                <div class="option-toggle">
+                                    <input type="checkbox" id="enableTop5" name="enableTop5">
+                                    <label for="enableTop5" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="option-info">
+                                    <h3>🏆 Top 5 Prizes</h3>
+                                    <p>Distribute prizes for top 5 positions</p>
+                                </div>
+                            </div>
+                            <div class="prize-inputs" id="top5Inputs" style="display: none;">
+                                <div class="prize-grid">
+                                    <div class="prize-item gold">
+                                        <div class="prize-rank">🥇</div>
+                                        <input type="number" placeholder="100.00" step="0.01">
+                                        <label>1st Place</label>
+                                    </div>
+                                    <div class="prize-item silver">
+                                        <div class="prize-rank">🥈</div>
+                                        <input type="number" placeholder="75.00" step="0.01">
+                                        <label>2nd Place</label>
+                                    </div>
+                                    <div class="prize-item bronze">
+                                        <div class="prize-rank">🥉</div>
+                                        <input type="number" placeholder="50.00" step="0.01">
+                                        <label>3rd Place</label>
+                                    </div>
+                                    <div class="prize-item">
+                                        <div class="prize-rank">4️⃣</div>
+                                        <input type="number" placeholder="25.00" step="0.01">
+                                        <label>4th Place</label>
+                                    </div>
+                                    <div class="prize-item">
+                                        <div class="prize-rank">5️⃣</div>
+                                        <input type="number" placeholder="15.00" step="0.01">
+                                        <label>5th Place</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top 10 Prizes -->
+                        <div class="prize-option-card">
+                            <div class="prize-option-header">
+                                <div class="option-toggle">
+                                    <input type="checkbox" id="enableTop10" name="enableTop10">
+                                    <label for="enableTop10" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="option-info">
+                                    <h3>🎖️ Top 10 Prizes</h3>
+                                    <p>Additional prizes for positions 6-10</p>
+                                </div>
+                            </div>
+                            <div class="prize-inputs" id="top10Inputs" style="display: none;">
+                                <div class="prize-grid">
+                                    <div class="prize-item">
+                                        <div class="prize-rank">6️⃣</div>
+                                        <input type="number" placeholder="10.00" step="0.01">
+                                        <label>6th Place</label>
+                                    </div>
+                                    <div class="prize-item">
+                                        <div class="prize-rank">7️⃣</div>
+                                        <input type="number" placeholder="8.00" step="0.01">
+                                        <label>7th Place</label>
+                                    </div>
+                                    <div class="prize-item">
+                                        <div class="prize-rank">8️⃣</div>
+                                        <input type="number" placeholder="6.00" step="0.01">
+                                        <label>8th Place</label>
+                                    </div>
+                                    <div class="prize-item">
+                                        <div class="prize-rank">9️⃣</div>
+                                        <input type="number" placeholder="4.00" step="0.01">
+                                        <label>9th Place</label>
+                                    </div>
+                                    <div class="prize-item">
+                                        <div class="prize-rank">🔟</div>
+                                        <input type="number" placeholder="2.00" step="0.01">
+                                        <label>10th Place</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Per Kill Rewards -->
+                        <div class="prize-option-card">
+                            <div class="prize-option-header">
+                                <div class="option-toggle">
+                                    <input type="checkbox" id="enablePerKill" name="enablePerKill">
+                                    <label for="enablePerKill" class="toggle-label">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="option-info">
+                                    <h3>💀 Per Kill Rewards</h3>
+                                    <p>Reward players for each elimination</p>
+                                </div>
+                            </div>
+                            <div class="prize-inputs" id="perKillInputs" style="display: none;">
+                                <div class="per-kill-input">
+                                    <div class="input-group">
+                                        <span class="input-prefix">$</span>
+                                        <input type="number" placeholder="2.00" step="0.01">
+                                        <span class="input-suffix">per kill</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" onclick="goBack()" class="btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Create Tournament
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        // Check admin authentication
+        window.addEventListener('DOMContentLoaded', () => {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            // Verify admin token
+            fetch('http://localhost:3000/admin/verify-token', {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminUser');
+                    window.location.href = 'admin-login.html';
+                } else {
+                    // Load banner options
+                    loadBannerOptions();
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                window.location.href = 'admin-login.html';
+            });
+        });
+
+        // Load available banner images
+        async function loadBannerOptions() {
+            try {
+                const response = await fetch('http://localhost:3000/banners');
+                const banners = await response.json();
+
+                const bannerGrid = document.getElementById('bannerGrid');
+                bannerGrid.innerHTML = banners.map(banner => `
+                    <div class="banner-option" onclick="selectBanner('${banner}')">
+                        <img src="http://localhost:3000/img/${banner}" alt="${banner}" loading="lazy">
+                        <div class="banner-overlay">
+                            <span class="banner-name">${banner}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading banners:', error);
+                document.getElementById('bannerGrid').innerHTML = '<p>Error loading banner options</p>';
+            }
+        }
+
+        // Select banner
+        function selectBanner(bannerName) {
+            document.getElementById('selectedBanner').value = bannerName;
+            const bannerNameElement = document.getElementById('selectedBannerName');
+            bannerNameElement.textContent = bannerName;
+            bannerNameElement.style.color = '#28a745'; // Green color for selected
+
+            // Update preview
+            const preview = document.getElementById('bannerPreview');
+            preview.innerHTML = `<img src="http://localhost:3000/img/${bannerName}" alt="${bannerName}">`;
+
+            // Remove selected class from all options
+            document.querySelectorAll('.banner-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Add selected class to clicked option
+            event.currentTarget.classList.add('selected');
+        }
+
+        // Toggle team size field based on mode
+        function toggleTeamSize() {
+            const mode = document.getElementById('mode').value;
+            const teamSizeGroup = document.getElementById('teamSizeGroup');
+            const teamSizeSelect = document.getElementById('teamSize');
+            const maxSlotsInput = document.getElementById('maxSlots');
+            const maxSlotsFormGroup = maxSlotsInput.closest('.form-group');
+
+            if (mode === 'clash_squad' || mode === 'lone_wolf') {
+                teamSizeGroup.style.display = 'block';
+                teamSizeSelect.required = true;
+                maxSlotsInput.readOnly = true;
+                maxSlotsFormGroup.style.opacity = '0.6';
+                maxSlotsFormGroup.querySelector('small').textContent = 'Auto-calculated based on team size';
+
+                // Auto-calculate maxSlots based on team size
+                teamSizeSelect.addEventListener('change', function() {
+                    const teamSize = this.value;
+                    let calculatedSlots = 0;
+                    switch(teamSize) {
+                        case '1vs1': calculatedSlots = 2; break;
+                        case '2v2': calculatedSlots = 4; break;
+                        case '4v4': calculatedSlots = 8; break;
+                        case '6v6': calculatedSlots = 12; break;
+                    }
+                    if (calculatedSlots > 0) {
+                        maxSlotsInput.value = calculatedSlots;
+                    }
+                });
+            } else if (mode === 'battle_royal') {
+                teamSizeGroup.style.display = 'none';
+                teamSizeSelect.required = false;
+                teamSizeSelect.value = '';
+                maxSlotsInput.readOnly = true;
+                maxSlotsInput.value = 48;
+                maxSlotsFormGroup.style.opacity = '0.6';
+                maxSlotsFormGroup.querySelector('small').textContent = 'Fixed at 48 players for Battle Royal';
+            } else {
+                teamSizeGroup.style.display = 'none';
+                teamSizeSelect.required = false;
+                teamSizeSelect.value = '';
+                maxSlotsInput.readOnly = false;
+                maxSlotsFormGroup.style.opacity = '1';
+                maxSlotsFormGroup.querySelector('small').textContent = 'Total number of participants allowed';
+                maxSlotsInput.value = '';
+            }
+        }
+
+        // Generate tournament ID with prefix based on mode and teamSize
+        function generateTournamentId(mode, teamSize) {
+            const timestamp = Date.now().toString().slice(-4); // Last 4 digits of timestamp
+            let prefix = '';
+
+            if (mode === 'clash_squad') {
+                if (teamSize === '2v2') {
+                    prefix = 'CSD';
+                } else if (teamSize === '1vs1') {
+                    prefix = 'CSS';
+                } else if (teamSize === '4v4' || teamSize === '6v6') {
+                    prefix = 'CSQ';
+                }
+            } else if (mode === 'lone_wolf') {
+                if (teamSize === '1vs1') {
+                    prefix = 'LS';
+                } else if (teamSize === '2v2') {
+                    prefix = 'LD';
+                }
+            } else if (mode === 'battle_royal') {
+                prefix = 'BF';
+            }
+
+            return `${prefix}${timestamp}`;
+        }
+
+        // Navigation
+        function goBack() {
+            window.location.href = 'admin-dashboard.html';
+        }
+
+        // Prize option toggles
+        document.getElementById('enableTop5').addEventListener('change', function() {
+            document.getElementById('top5Inputs').style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('enableTop10').addEventListener('change', function() {
+            document.getElementById('top10Inputs').style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('enablePerKill').addEventListener('change', function() {
+            document.getElementById('perKillInputs').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Form submission
+        document.getElementById('tournamentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Check if admin token exists
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                alert('Authentication required. Please login again.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            submitBtn.disabled = true;
+
+            // Validate banner selection
+            const bannerValue = document.getElementById('selectedBanner').value;
+            if (!bannerValue || bannerValue.trim() === '') {
+                alert('Please select a tournament banner before creating the tournament.');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // Collect form data
+            const formData = new FormData(e.target);
+            const tournamentData = Object.fromEntries(formData);
+
+            // Ensure banner field is included
+            tournamentData.banner = bannerValue;
+
+            // Auto-generate tournament ID with prefix
+            const generatedId = generateTournamentId(tournamentData.mode, tournamentData.teamSize);
+            tournamentData.tournamentId = generatedId;
+
+            // Collect prize data
+            const prizes = {};
+            if (document.getElementById('enableTop5').checked) {
+                const top5Inputs = document.querySelectorAll('#top5Inputs input');
+                prizes.top5 = Array.from(top5Inputs).map(input => parseFloat(input.value) || 0);
+            }
+            if (document.getElementById('enableTop10').checked) {
+                const top10Inputs = document.querySelectorAll('#top10Inputs input');
+                prizes.top10 = Array.from(top10Inputs).map(input => parseFloat(input.value) || 0);
+            }
+            if (document.getElementById('enablePerKill').checked) {
+                prizes.perKill = parseFloat(document.querySelector('#perKillInputs input').value) || 0;
+            }
+
+            tournamentData.prizes = prizes;
+            tournamentData.registeredPlayers = 0;
+            tournamentData.status = 'upcoming';
+
+            try {
+                console.log('Sending tournament data:', tournamentData); // Debug log
+
+                const response = await fetch('http://localhost:3000/admin/tournaments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify(tournamentData)
+                });
+
+                console.log('Response status:', response.status); // Debug log
+
+                let result;
+                try {
+                    result = await response.json();
+                    console.log('Response data:', result); // Debug log
+                } catch (parseError) {
+                    console.error('Failed to parse response as JSON:', parseError);
+                    throw new Error('Server returned invalid response');
+                }
+
+                if (response.ok) {
+                    alert('Tournament created successfully!');
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    if (response.status === 401 || response.status === 403) {
+                        alert('Authentication failed. Please login again.');
+                        localStorage.removeItem('adminToken');
+                        localStorage.removeItem('adminUser');
+                        window.location.href = 'admin-login.html';
+                    } else {
+                        alert(result.message || 'Failed to create tournament');
+                    }
+                }
+            } catch (error) {
+                alert('Error creating tournament: ' + error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

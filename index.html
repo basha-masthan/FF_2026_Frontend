@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winzone Arena - Home</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="navbar-brand">
+                <i class="fas fa-trophy"></i>
+                Winzone Arena
+            </a>
+            <div class="profile-section" onclick="toggleProfileDropdown()">
+                <div class="profile-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="profile-name" id="userName">Loading...</span>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+
+                <!-- Profile Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" onclick="goToProfile()">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </div>
+                    <div class="dropdown-item" onclick="goToMyMatches()">
+                        <i class="fas fa-trophy"></i>
+                        <span>My Matches</span>
+                    </div>
+                    <div class="dropdown-item logout-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Tournaments Section -->
+        <div id="tournaments-content" class="content-section active">
+            <!-- Tournaments List -->
+            <section class="tournaments-section">
+                <div class="section-header">
+                    <h2>Available Tournaments</h2>
+                    <p>Choose your battle and join the competition</p>
+                </div>
+                
+                <div id="tournaments-list" class="tournaments-list">
+                    <!-- Tournaments will be loaded here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Community Section (Placeholder) -->
+        <div id="community-content" class="content-section">
+            <div class="coming-soon">
+                <i class="fas fa-users"></i>
+                <h2>Community Hub</h2>
+                <p>Coming Soon - Connect with fellow gamers!</p>
+            </div>
+        </div>
+
+        <!-- My Matches Section -->
+        <div id="matches-content" class="content-section">
+            <div class="matches-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-trophy"></i> My Matches</h2>
+                    <p>Your registered tournaments</p>
+                </div>
+
+                <div id="my-matches-list" class="matches-list">
+                    <!-- User's registered tournaments will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet Section -->
+        <div id="wallet-content" class="content-section">
+            <div class="wallet-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-wallet"></i> Wallet & Rewards</h2>
+                    <p>Manage your earnings and make deposits</p>
+                </div>
+
+                <!-- Action Buttons at Top -->
+                <div class="wallet-actions-top">
+                    <button class="action-btn deposit-btn" onclick="openDepositModal()">
+                        <i class="fas fa-plus"></i>
+                        Deposit
+                    </button>
+                    <button class="action-btn withdraw-btn" disabled>
+                        <i class="fas fa-minus"></i>
+                        Withdraw
+                    </button>
+                </div>
+
+                <!-- Balance Cards -->
+                <div class="wallet-overview">
+                    <!-- Total Balance - Full Width on Top -->
+                    <div class="balance-card total-balance">
+                        <div class="balance-header">
+                            <i class="fas fa-coins"></i>
+                            <h3>Total Balance</h3>
+                        </div>
+                        <div class="balance-amount">
+                            <span class="currency">$</span>
+                            <span id="totalBalance">0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Deposit and Winning in Same Row -->
+                    <div class="balance-row">
+                        <div class="balance-card deposit-balance">
+                            <div class="balance-header">
+                                <i class="fas fa-credit-card"></i>
+                                <h3>Deposit Amount</h3>
+                            </div>
+                            <div class="balance-amount">
+                                <span class="currency">$</span>
+                                <span id="depositBalance">0.00</span>
+                            </div>
+                            <div class="balance-description">
+                                From deposits
+                            </div>
+                        </div>
+
+                        <div class="balance-card winning-balance">
+                            <div class="balance-header">
+                                <i class="fas fa-trophy"></i>
+                                <h3>Winning Amount</h3>
+                            </div>
+                            <div class="balance-amount">
+                                <span class="currency">$</span>
+                                <span id="winningBalance">0.00</span>
+                            </div>
+                            <div class="balance-description">
+                                From tournament winnings
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Section -->
+                <div class="transactions-section">
+                    <div class="transactions-header">
+                        <h3><i class="fas fa-history"></i> Transaction History</h3>
+                    </div>
+                    <div class="transactions-list" id="transactionsList">
+                        <!-- Transactions will be loaded here -->
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">Loading transactions...</div>
+                                <div class="transaction-date">Please wait</div>
+                            </div>
+                            <div class="transaction-amount">
+                                <span class="amount">...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="deposit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-credit-card"></i>
+                <h2>Add Money to Wallet</h2>
+                <p>Choose an amount to deposit</p>
+            </div>
+
+            <div class="amount-options">
+                <button class="amount-btn" data-amount="10">$10</button>
+                <button class="amount-btn" data-amount="25">$25</button>
+                <button class="amount-btn" data-amount="50">$50</button>
+                <button class="amount-btn" data-amount="100">$100</button>
+                <button class="amount-btn" data-amount="250">$250</button>
+                <button class="amount-btn" data-amount="500">$500</button>
+            </div>
+
+            <div class="custom-amount">
+                <label for="customAmount">Or enter custom amount ($10 - $1000)</label>
+                <input type="number" id="customAmount" min="10" max="1000" step="1" placeholder="Enter amount">
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" onclick="closeDepositModal()">Cancel</button>
+                <button class="modal-btn proceed-btn" id="proceedBtn" onclick="proceedToPayment()" disabled>Proceed to Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item" onclick="navigateTo('matches')">
+            <i class="fas fa-gamepad"></i>
+            <span>My Matches</span>
+        </div>
+        <div class="nav-item active" onclick="navigateTo('tournaments')">
+            <i class="fas fa-trophy"></i>
+            <span>Tournaments</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('wallet')">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </div>
+    </nav>
+
+    <script>
+
+
+        // Check authentication
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            // Verify token
+            fetch('http://localhost:3000/verify-token', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        // Update user name in navbar
+                        const userName = localStorage.getItem('userName') || 'User';
+                        document.getElementById('userName').textContent = userName;
+
+                        // Load initial content (tournaments by default)
+                        loadTournamentsData();
+                    });
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'auth.html';
+                }
+            })
+            .catch((error) => {
+                console.error('Token verification failed:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'auth.html';
+            });
+        });
+
+        // Profile dropdown functionality
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const profileSection = document.querySelector('.profile-section');
+
+            // Toggle active class
+            profileSection.classList.toggle('active');
+            dropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const profileSection = document.querySelector('.profile-section');
+            const dropdown = document.getElementById('profileDropdown');
+
+            if (!profileSection.contains(e.target)) {
+                profileSection.classList.remove('active');
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // Navigate to profile
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        // Navigate to my matches
+        function goToMyMatches() {
+            navigateTo('matches');
+        }
+
+        // Logout functionality
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'auth.html';
+            }
+        }
+
+        // Bottom navigation
+        function navigateTo(section) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Add active class to clicked item
+            event.currentTarget.classList.add('active');
+
+            // Hide all content sections
+            document.querySelectorAll('.content-section').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected content section
+            const contentSection = document.getElementById(section + '-content');
+            if (contentSection) {
+                contentSection.classList.add('active');
+
+                // Load content for the section
+                switch(section) {
+                    case 'matches':
+                        loadMyMatchesData();
+                        break;
+                    case 'tournaments':
+                        loadTournamentsData();
+                        break;
+                    case 'community':
+                        // Community content loading logic
+                        break;
+                    case 'wallet':
+                        loadWalletData();
+                        break;
+                }
+            }
+        }
+
+        // Load tournaments data
+        async function loadTournamentsData() {
+            try {
+                // Load stats
+                const statsResponse = await fetch('http://localhost:3000/stats', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (statsResponse.ok) {
+                    const contentType = statsResponse.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const stats = await statsResponse.json();
+                        document.getElementById('total-tournaments').textContent = stats.totalTournaments || 0;
+                        document.getElementById('total-players').textContent = stats.totalPlayers || 0;
+                        document.getElementById('total-prize').textContent = '$' + (stats.totalPrizePool || 0).toFixed(0);
+                    }
+                }
+
+                // Load tournaments
+                const tournamentsResponse = await fetch('http://localhost:3000/tournaments', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (tournamentsResponse.ok) {
+                    const contentType = tournamentsResponse.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const tournaments = await tournamentsResponse.json();
+                        displayTournaments(tournaments);
+                    } else {
+                        showEmptyTournaments();
+                    }
+                } else {
+                    showEmptyTournaments();
+                }
+            } catch (error) {
+                console.error('Error loading tournaments data:', error);
+                showEmptyTournaments();
+            }
+        }
+
+
+
+        // Display tournaments grouped by prefixes in grid layout
+        function displayTournaments(tournaments) {
+            const container = document.getElementById('tournaments-list');
+
+            if (tournaments.length === 0) {
+                showEmptyTournaments();
+                return;
+            }
+
+            // Group tournaments by prefix
+            const groupedTournaments = groupTournamentsByPrefix(tournaments);
+
+            // Clear existing content
+            container.innerHTML = '';
+
+            // Create sections for each group
+            Object.keys(groupedTournaments).forEach(prefix => {
+                const groupTournaments = groupedTournaments[prefix];
+                const sectionElement = createSectionForGroup(prefix, groupTournaments);
+                container.appendChild(sectionElement);
+            });
+        }
+
+        // Group tournaments by their ID prefix
+        function groupTournamentsByPrefix(tournaments) {
+            const groups = {};
+
+            tournaments.forEach(tournament => {
+                const prefix = getTournamentPrefix(tournament.tournamentId);
+                if (!groups[prefix]) {
+                    groups[prefix] = [];
+                }
+                groups[prefix].push(tournament);
+            });
+
+            return groups;
+        }
+
+        // Get prefix from tournament ID
+        function getTournamentPrefix(tournamentId) {
+            if (tournamentId.startsWith('CSD')) return 'CSD';
+            if (tournamentId.startsWith('CSS')) return 'CSS';
+            if (tournamentId.startsWith('CSQ')) return 'CSQ';
+            if (tournamentId.startsWith('LS')) return 'LS';
+            if (tournamentId.startsWith('LD')) return 'LD';
+            if (tournamentId.startsWith('BF')) return 'BF';
+            return 'OTHER'; // Fallback for any other tournaments
+        }
+
+        // Create section element for a group
+        function createSectionForGroup(prefix, tournaments) {
+            const groupInfo = getGroupInfo(prefix);
+
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'tournament-section';
+            sectionDiv.innerHTML = `
+                <div class="section-header">
+                    <h3 class="section-title">${groupInfo.title}</h3>
+                    <p class="section-subtitle">${groupInfo.subtitle}</p>
+                </div>
+                <div class="section-container">
+                    <button class="scroll-btn scroll-left" onclick="scrollSection('${prefix}', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="tournament-row" id="row-${prefix}">
+                        ${tournaments.map((tournament, index) => createTournamentCard(tournament, index)).join('')}
+                    </div>
+                    <button class="scroll-btn scroll-right" onclick="scrollSection('${prefix}', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+
+            return sectionDiv;
+        }
+
+        // Get group information based on prefix
+        function getGroupInfo(prefix) {
+            const groupData = {
+                'CSD': { title: 'Clash Squad Duo', subtitle: 'Team up in 2v2 battles' },
+                'CSS': { title: 'Clash Squad Solo', subtitle: '1vs1 competitive matches' },
+                'CSQ': { title: 'Clash Squad Squad', subtitle: 'Large team battles (4v4/6v6)' },
+                'LS': { title: 'Lone Wolf Solo', subtitle: 'Individual 1vs1 challenges' },
+                'LD': { title: 'Lone Wolf Duo', subtitle: 'Strategic 2v2 gameplay' },
+                'BF': { title: 'Battle Field', subtitle: '48-player battle royale' },
+                'OTHER': { title: 'Special Tournaments', subtitle: 'Unique gaming experiences' }
+            };
+            return groupData[prefix] || groupData['OTHER'];
+        }
+
+        // Create individual tournament card
+        function createTournamentCard(tournament, index) {
+            return `
+                <div class="tournament-card" style="animation-delay: ${index * 0.1}s">
+                    <div class="card-banner">
+                        <img src="${tournament.banner || '../backend/img/ff1.jpg'}" alt="${tournament.tournamentId}" onerror="this.src='../backend/img/ff1.jpg'">
+                        <div class="banner-overlay">
+                            <div class="tournament-status ${tournament.status}">
+                                ${tournament.status}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <h3 class="tournament-name">${tournament.tournamentId}</h3>
+
+                        <div class="tournament-info">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div class="info-content">
+                                        <span class="info-label">Start Time</span>
+                                        <span class="info-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-users"></i>
+                                    <div class="info-content">
+                                        <span class="info-label">Available Slots</span>
+                                        <span class="info-value">${tournament.maxSlots - tournament.registeredPlayers === 0 ? 'slots are filled' : `total ${tournament.maxSlots} available ${tournament.maxSlots - tournament.registeredPlayers}`}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-gamepad"></i>
+                                    <div class="info-content">
+                                        <span class="info-label">Game Mode</span>
+                                        <span class="info-value">${tournament.mode}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div class="info-content">
+                                        <span class="info-label">Map</span>
+                                        <span class="info-value">${tournament.map}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="prize-section">
+                            <div class="prize-compact">
+                                <div class="prize-entry">
+                                    <div class="prize-label">ENTRY</div>
+                                    <div class="prize-amount">
+                                        <span class="currency">$</span>
+                                        <span class="amount">${tournament.entryFee || 0}</span>
+                                    </div>
+                                </div>
+                                <div class="prize-win">
+                                    <div class="prize-label">WIN</div>
+                                    <div class="prize-amount">
+                                        <span class="currency">$</span>
+                                        <span class="amount">${tournament.winningFee}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button class="join-tournament-btn" onclick="joinTournament('${tournament._id}')">
+                            <i class="fas fa-play"></i>
+                            Join Tournament
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Get display name for mode and teamSize combination
+        function getModeDisplayName(mode, teamSize) {
+            if (mode === 'clash_squad') {
+                if (teamSize === '2v2') return 'CSD';
+                if (teamSize === '1vs1') return 'CSS';
+                if (teamSize === '4v4' || teamSize === '6v6') return 'CSQ';
+            } else if (mode === 'lone_wolf') {
+                if (teamSize === '1vs1') return 'LS';
+                if (teamSize === '2v2') return 'LD';
+            } else if (mode === 'battle_royal') {
+                return 'BF';
+            }
+            return mode.toUpperCase();
+        }
+
+        // Show empty state
+        function showEmptyTournaments() {
+            const container = document.getElementById('tournaments-list');
+            container.innerHTML = `
+                <div class="empty-tournaments">
+                    <div class="empty-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>No Tournaments Available</h3>
+                    <p>Check back later for exciting new tournaments!</p>
+                </div>
+            `;
+        }
+
+        // Join tournament - Show registration modal
+        let currentTournamentData = null;
+
+        function joinTournament(tournamentId) {
+            // Find tournament data from current tournaments
+            const tournamentCard = document.querySelector(`[onclick="joinTournament('${tournamentId}')"]`);
+            if (!tournamentCard) return;
+
+            // Extract tournament data from the card (this is a simplified approach)
+            // In a real implementation, you'd pass the tournament data or fetch it
+            showRegistrationModal(tournamentId);
+        }
+
+        // Show registration modal
+        function showRegistrationModal(tournamentId) {
+            // Create modal HTML
+            const modalHTML = `
+                <div id="registrationModal" class="registration-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <i class="fas fa-user-plus"></i>
+                            <h2>Join Tournament</h2>
+                            <p>Complete your registration to join the tournament</p>
+                        </div>
+
+                        <form id="registrationForm" class="registration-form">
+                            <div class="form-group">
+                                <label for="freeFireId">
+                                    <i class="fas fa-gamepad"></i>
+                                    Free Fire ID <span class="required">*</span>
+                                </label>
+                                <input type="text" id="freeFireId" name="freeFireId" required
+                                       placeholder="Enter your Free Fire game ID"
+                                       pattern="[0-9]+" title="Please enter a valid numeric Free Fire ID">
+                                <small class="form-help">Your unique Free Fire player ID (numbers only)</small>
+                            </div>
+
+                            <div class="form-group" id="teamSelectionGroup" style="display: none;">
+                                <label for="teamSelection">
+                                    <i class="fas fa-users"></i>
+                                    Team Selection <span class="required">*</span>
+                                </label>
+                                <select id="teamSelection" name="teamSelection">
+                                    <option value="">Select your team</option>
+                                    <option value="team_a">Team A</option>
+                                    <option value="team_b">Team B</option>
+                                </select>
+                                <small class="form-help">Choose which team you want to join</small>
+                            </div>
+
+                            <div class="form-group terms-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="termsAccepted" name="termsAccepted" required>
+                                    <span class="checkmark"></span>
+                                    I accept the <a href="#" onclick="showTerms()">Terms and Conditions</a>
+                                </label>
+                            </div>
+
+                            <div class="registration-summary" id="registrationSummary">
+                                <!-- Registration summary will be shown here -->
+                            </div>
+                        </form>
+
+                        <div class="modal-actions">
+                            <button type="button" class="modal-btn cancel-btn" onclick="closeRegistrationModal()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                            <button type="button" class="modal-btn proceed-btn" onclick="submitRegistration('${tournamentId}')">
+                                <i class="fas fa-paper-plane"></i>
+                                Register Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.body.style.overflow = 'hidden';
+
+            // Fetch tournament details to determine if team selection is needed
+            fetchTournamentDetails(tournamentId);
+        }
+
+        // Fetch tournament details
+        async function fetchTournamentDetails(tournamentId) {
+            try {
+                const response = await fetch('http://13.239.246.219/tournaments', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (response.ok) {
+                    const tournaments = await response.json();
+                    const tournament = tournaments.find(t => t._id === tournamentId);
+
+                    if (tournament) {
+                        currentTournamentData = tournament;
+
+                        // Show team selection for duo/squad tournaments
+                        const requiresTeamSelection = ['2v2', '4v4', '6v6'].includes(tournament.teamSize);
+                        const teamGroup = document.getElementById('teamSelectionGroup');
+                        if (requiresTeamSelection) {
+                            teamGroup.style.display = 'block';
+                            document.getElementById('teamSelection').required = true;
+                        }
+
+                        // Update registration summary
+                        updateRegistrationSummary(tournament);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching tournament details:', error);
+            }
+        }
+
+        // Update registration summary
+        function updateRegistrationSummary(tournament) {
+            const summary = document.getElementById('registrationSummary');
+            summary.innerHTML = `
+                <div class="summary-card">
+                    <h4><i class="fas fa-trophy"></i> ${tournament.tournamentId}</h4>
+                    <div class="summary-details">
+                        <div class="summary-item">
+                            <span class="label">Entry Fee:</span>
+                            <span class="value">$${tournament.entryFee}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Prize Pool:</span>
+                            <span class="value">$${tournament.winningFee}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Available Slots:</span>
+                            <span class="value">${tournament.maxSlots - tournament.registeredPlayers}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Submit registration
+        async function submitRegistration(tournamentId) {
+            const form = document.getElementById('registrationForm');
+            const formData = new FormData(form);
+
+            // Validate form
+            const freeFireId = formData.get('freeFireId').trim();
+            const termsAccepted = formData.get('termsAccepted') === 'on';
+            const teamSelection = formData.get('teamSelection');
+
+            if (!freeFireId) {
+                showFormError('Please enter your Free Fire ID');
+                return;
+            }
+
+            if (!termsAccepted) {
+                showFormError('You must accept the terms and conditions');
+                return;
+            }
+
+            // Check team selection for duo/squad tournaments
+            const requiresTeamSelection = currentTournamentData && ['2v2', '4v2', '4v4', '6v6'].includes(currentTournamentData.teamSize);
+            if (requiresTeamSelection && !teamSelection) {
+                showFormError('Please select a team');
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = document.querySelector('.proceed-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+
+            try {
+                const response = await fetch(`http://13.239.246.219/tournaments/${tournamentId}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        freeFireId,
+                        termsAccepted,
+                        teamSelection: requiresTeamSelection ? teamSelection : null
+                    })
+                });
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    if (response.status === 401) {
+                        alert('Authentication expired. Please log in again.');
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('userName');
+                        localStorage.removeItem('userEmail');
+                        window.location.href = 'auth.html';
+                        return;
+                    }
+                    throw new Error('Invalid response from server');
+                }
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(`Successfully registered for ${currentTournamentData.tournamentId}! ${result.teamAssigned ? `You have been assigned to ${result.teamAssigned.replace('_', ' ').toUpperCase()}.` : ''}`);
+                    closeRegistrationModal();
+                    loadTournamentsData(); // Refresh data
+                } else {
+                    showFormError(result.message || 'Failed to register for tournament');
+                }
+            } catch (error) {
+                console.error('Error registering for tournament:', error);
+                showFormError('Network error. Please check your connection and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // Show form error
+        function showFormError(message) {
+            // Remove existing error
+            const existingError = document.querySelector('.form-error');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'form-error';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+
+            const form = document.getElementById('registrationForm');
+            form.insertBefore(errorDiv, form.firstChild);
+        }
+
+        // Show terms and conditions
+        function showTerms() {
+            alert('Terms and Conditions:\n\n1. You must have a valid Free Fire account\n2. You agree to follow all tournament rules\n3. Any cheating or misconduct will result in disqualification\n4. Tournament decisions are final\n5. You are responsible for your own gameplay and conduct');
+        }
+
+        // Close registration modal
+        function closeRegistrationModal() {
+            const modal = document.getElementById('registrationModal');
+            if (modal) {
+                modal.remove();
+                document.body.style.overflow = '';
+            }
+            currentTournamentData = null;
+        }
+
+        // Wallet functions
+        async function loadWalletData() {
+            try {
+                const response = await fetch('http://localhost:3000/profile', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    const totalBalance = (user.winningAmount || 0) + (user.depositAmount || 0);
+
+                    document.getElementById('totalBalance').textContent = totalBalance.toFixed(2);
+                    document.getElementById('winningBalance').textContent = (user.winningAmount || 0).toFixed(2);
+                    document.getElementById('depositBalance').textContent = (user.depositAmount || 0).toFixed(2);
+
+                    // Load transactions after wallet data
+                    loadTransactions();
+                }
+            } catch (error) {
+                console.error('Error loading wallet data:', error);
+            }
+        }
+
+        // Load my matches data
+        async function loadMyMatchesData() {
+            try {
+                const response = await fetch('http://13.239.246.219/my-tournaments', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (response.ok) {
+                    const tournaments = await response.json();
+
+                    // Fetch registration details for each tournament
+                    const tournamentsWithRegistration = await Promise.all(
+                        tournaments.map(async (tournament) => {
+                            try {
+                                const regResponse = await fetch(`http://13.239.246.219/user/registration/${tournament._id}`, {
+                                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                });
+
+                                if (regResponse.ok) {
+                                    const registration = await regResponse.json();
+                                    return { ...tournament, registration };
+                                } else {
+                                    return { ...tournament, registration: null };
+                                }
+                            } catch (error) {
+                                console.error('Error fetching registration for tournament:', tournament._id, error);
+                                return { ...tournament, registration: null };
+                            }
+                        })
+                    );
+
+                    displayMyMatches(tournamentsWithRegistration);
+                } else {
+                    showMyMatchesError();
+                }
+            } catch (error) {
+                console.error('Error loading my matches:', error);
+                showMyMatchesError();
+            }
+        }
+
+        // Display my matches
+        function displayMyMatches(tournaments) {
+            const container = document.getElementById('my-matches-list');
+
+            if (tournaments.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-matches">
+                        <div class="empty-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3>No Registered Matches</h3>
+                        <p>You haven't registered for any tournaments yet.</p>
+                        <button onclick="navigateTo('tournaments')" class="browse-btn">
+                            <i class="fas fa-search"></i>
+                            Browse Tournaments
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tournaments.map(tournament => `
+                <div class="match-card">
+                    <div class="match-header">
+                        <div class="match-id">${tournament.tournamentId}</div>
+                        <div class="match-status ${tournament.status}">${tournament.status}</div>
+                    </div>
+
+                    <div class="match-body">
+                        <div class="match-info">
+                            <div class="info-row">
+                                <i class="fas fa-calendar"></i>
+                                <span>${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-gamepad"></i>
+                                <span>Mode: ${tournament.mode.toUpperCase()}${tournament.teamSize ? ` (${tournament.teamSize})` : ''}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-map"></i>
+                                <span>Map: ${tournament.map}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>Entry: $${tournament.entryFee}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-trophy"></i>
+                                <span>Win: $${tournament.winningFee}</span>
+                            </div>
+                        </div>
+
+                        <div class="registration-details">
+                            <div class="registration-info">
+                                <div class="info-row">
+                                    <i class="fas fa-id-card"></i>
+                                    <span>Free Fire ID: ${tournament.registration?.freeFireId || 'Not provided'}</span>
+                                </div>
+                                ${tournament.registration?.teamSelection ? `
+                                <div class="info-row">
+                                    <i class="fas fa-users"></i>
+                                    <span>Team: ${tournament.registration.teamSelection.replace('_', ' ').toUpperCase()}</span>
+                                </div>
+                                ` : ''}
+                                <div class="info-row">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Registered: ${tournament.registration?.registrationDate ? new Date(tournament.registration.registrationDate).toLocaleDateString() : 'Date not available'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="room-details" id="room-${tournament._id}">
+                            ${getRoomDetails(tournament)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get room details based on tournament status
+        function getRoomDetails(tournament) {
+            if (tournament.status === 'upcoming') {
+                return `
+                    <div class="room-pending">
+                        <i class="fas fa-clock"></i>
+                        <span>Room details will be available closer to match time</span>
+                    </div>
+                `;
+            } else if (tournament.status === 'active' || tournament.status === 'completed') {
+                if (tournament.roomId && tournament.roomPassword) {
+                    return `
+                        <div class="room-info">
+                            <div class="room-code">
+                                <i class="fas fa-key"></i>
+                                <span>Room: ${tournament.roomId}</span>
+                            </div>
+                            <div class="room-password">
+                                <i class="fas fa-lock"></i>
+                                <span>Password: ${tournament.roomPassword}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="room-pending">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Waiting for room details...</span>
+                        </div>
+                    `;
+                }
+            }
+            return '';
+        }
+
+        // Show error state for my matches
+        function showMyMatchesError() {
+            const container = document.getElementById('my-matches-list');
+            container.innerHTML = `
+                <div class="error-matches">
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Unable to Load Matches</h3>
+                    <p>Please try again later.</p>
+                    <button onclick="loadMyMatchesData()" class="retry-btn">
+                        <i class="fas fa-redo"></i>
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+
+        // Load transactions from backend
+        async function loadTransactions() {
+            try {
+                const response = await fetch('http://localhost:3000/transactions', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load transactions');
+                }
+
+                const data = await response.json();
+                const transactions = data.transactions || [];
+
+                const transactionsList = document.getElementById('transactionsList');
+
+                if (transactions.length === 0) {
+                    transactionsList.innerHTML = `
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">No transactions yet</div>
+                                <div class="transaction-date">Your transaction history will appear here</div>
+                            </div>
+                            <div class="transaction-amount">
+                                <span class="amount">--</span>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                transactionsList.innerHTML = transactions.map(transaction => `
+                    <div class="transaction-item">
+                        <div class="transaction-icon ${getTransactionIconClass(transaction.type)}">
+                            <i class="fas fa-${getTransactionIcon(transaction.type)}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">${transaction.description}</div>
+                            <div class="transaction-date">${formatTransactionDate(new Date(transaction.createdAt))}</div>
+                        </div>
+                        <div class="transaction-amount ${transaction.amount >= 0 ? 'positive' : 'negative'}">
+                            <span class="amount">${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toFixed(2)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                const transactionsList = document.getElementById('transactionsList');
+                transactionsList.innerHTML = `
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Failed to load transactions</div>
+                            <div class="transaction-date">Please try again later</div>
+                        </div>
+                        <div class="transaction-amount">
+                            <span class="amount">--</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function getTransactionIcon(type) {
+            switch(type) {
+                case 'deposit': return 'credit-card';
+                case 'winning': return 'trophy';
+                case 'entry_fee': return 'minus-circle';
+                case 'withdrawal': return 'arrow-up';
+                default: return 'circle';
+            }
+        }
+
+        function getTransactionIconClass(type) {
+            switch(type) {
+                case 'deposit': return 'deposit';
+                case 'winning': return 'winning';
+                case 'entry_fee': return 'entry-fee';
+                case 'withdrawal': return 'withdrawal';
+                default: return '';
+            }
+        }
+
+        function formatTransactionDate(date) {
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) return 'Today';
+            if (diffDays === 2) return 'Yesterday';
+            if (diffDays <= 7) return `${diffDays - 1} days ago`;
+
+            return date.toLocaleDateString();
+        }
+
+        function openDepositModal() {
+            document.getElementById('depositModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').classList.remove('active');
+            document.body.style.overflow = '';
+            resetModalState();
+        }
+
+        function resetModalState() {
+            // Reset amount buttons
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Reset custom amount
+            document.getElementById('customAmount').value = '';
+
+            // Disable proceed button
+            document.getElementById('proceedBtn').disabled = true;
+        }
+
+        // Amount selection
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('amount-btn')) {
+                // Remove selected class from all buttons
+                document.querySelectorAll('.amount-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+
+                // Add selected class to clicked button
+                e.target.classList.add('selected');
+
+                // Clear custom amount
+                document.getElementById('customAmount').value = '';
+
+                // Enable proceed button
+                document.getElementById('proceedBtn').disabled = false;
+            }
+        });
+
+        // Custom amount input
+        document.getElementById('customAmount').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+
+            // Remove selected class from buttons
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Enable/disable proceed button based on valid amount
+            document.getElementById('proceedBtn').disabled = !(value >= 10 && value <= 1000);
+        });
+
+        async function proceedToPayment() {
+            const selectedBtn = document.querySelector('.amount-btn.selected');
+            let amount;
+
+            if (selectedBtn) {
+                amount = parseFloat(selectedBtn.dataset.amount);
+            } else {
+                amount = parseFloat(document.getElementById('customAmount').value);
+            }
+
+            if (!amount || amount < 10 || amount > 1000) {
+                alert('Please select a valid amount between $10 and $1000');
+                return;
+            }
+
+            try {
+                // Disable proceed button
+                const proceedBtn = document.getElementById('proceedBtn');
+                proceedBtn.disabled = true;
+                proceedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                // Create payment order
+                const orderResponse = await fetch('http://localhost:3000/create-payment-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
+
+                if (!orderResponse.ok) {
+                    throw new Error('Failed to create payment order');
+                }
+
+                const orderData = await orderResponse.json();
+
+                // Get Razorpay key
+                const keyResponse = await fetch('http://localhost:3000/get-razorpay-key');
+                const keyData = await keyResponse.json();
+
+                // Initialize Razorpay
+                const options = {
+                    key: keyData.key,
+                    amount: orderData.amount,
+                    currency: orderData.currency,
+                    order_id: orderData.id,
+                    name: 'Winzone Arena',
+                    description: `Deposit $${amount} to wallet`,
+                    handler: async function (response) {
+                        await verifyPayment(response, orderData.receipt);
+                    },
+                    prefill: {
+                        email: localStorage.getItem('userEmail') || '',
+                        contact: ''
+                    },
+                    theme: {
+                        color: '#667eea'
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+                // Re-enable button if payment window is closed without payment
+                rzp.on('payment.failed', function () {
+                    proceedBtn.disabled = false;
+                    proceedBtn.innerHTML = 'Proceed to Pay';
+                    alert('Payment failed. Please try again.');
+                });
+
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Failed to initiate payment. Please try again.');
+                proceedBtn.disabled = false;
+                proceedBtn.innerHTML = 'Proceed to Pay';
+            }
+        }
+
+        async function verifyPayment(razorpayResponse, receipt) {
+            try {
+                const verifyResponse = await fetch('http://localhost:3000/verify-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        razorpay_order_id: razorpayResponse.razorpay_order_id,
+                        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                        razorpay_signature: razorpayResponse.razorpay_signature,
+                        receipt: receipt
+                    })
+                });
+
+                const result = await verifyResponse.json();
+
+                if (verifyResponse.ok) {
+                    alert(`Payment successful! $${result.amount} has been added to your wallet.`);
+                    closeDepositModal();
+                    loadWalletData(); // Refresh wallet data
+                } else {
+                    alert('Payment verification failed. Please contact support if amount was debited.');
+                }
+            } catch (error) {
+                console.error('Payment verification error:', error);
+                alert('Payment verification failed. Please contact support.');
+            }
+        }
+
+
+        // Scroll tournament section horizontally
+        function scrollSection(prefix, direction) {
+            const row = document.getElementById(`row-${prefix}`);
+            if (!row) return;
+
+            const scrollAmount = 320; // Card width + gap
+            const currentScroll = row.scrollLeft;
+            const newScroll = currentScroll + (direction * scrollAmount);
+
+            row.scrollTo({
+                left: newScroll,
+                behavior: 'smooth'
+            });
+        }
+
+        // Update scroll button visibility
+        function updateScrollButtons() {
+            document.querySelectorAll('.tournament-row').forEach(row => {
+                const prefix = row.id.replace('row-', '');
+                const leftBtn = row.parentElement.querySelector('.scroll-left');
+                const rightBtn = row.parentElement.querySelector('.scroll-right');
+
+                if (leftBtn && rightBtn) {
+                    leftBtn.style.opacity = row.scrollLeft > 0 ? '1' : '0.3';
+                    rightBtn.style.opacity = (row.scrollLeft < row.scrollWidth - row.clientWidth - 10) ? '1' : '0.3';
+                }
+            });
+        }
+
+        // Add scroll event listeners to update button visibility
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelectorAll('.tournament-row').forEach(row => {
+                    row.addEventListener('scroll', updateScrollButtons);
+                    updateScrollButtons(); // Initial check
+                });
+            }, 100);
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('depositModal').addEventListener('click', (e) => {
+            if (e.target.id === 'depositModal') {
+                closeDepositModal();
+            }
+        });
+    </script>
+
+    <style>
+        /* Tournament card styling */
+        .tournament-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .tournament-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .card-banner {
+            position: relative;
+            height: 140px;
+            overflow: hidden;
+        }
+
+        .card-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.1));
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px;
+        }
+
+        .tournament-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            z-index: 2;
+        }
+
+        .tournament-status {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tournament-status.upcoming {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+
+        .tournament-status.active {
+            background: rgba(23, 162, 184, 0.9);
+            color: white;
+        }
+
+        .tournament-status.completed {
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .tournament-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .tournament-info {
+            margin-bottom: 18px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .info-item i {
+            color: #667eea;
+            font-size: 0.9rem;
+            width: 14px;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 0.7rem;
+            color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 1px;
+        }
+
+        .info-value {
+            display: block;
+            font-size: 0.8rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .prize-section {
+            margin-bottom: 15px;
+        }
+
+        .prize-compact {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            position: relative;
+        }
+
+        .prize-compact::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 8px;
+            bottom: 8px;
+            width: 1px;
+            background: linear-gradient(to bottom, #dee2e6, #adb5bd);
+            transform: translateX(-50%);
+        }
+
+        .prize-entry, .prize-win {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .prize-entry {
+            color: #dc3545;
+        }
+
+        .prize-win {
+            color: #28a745;
+        }
+
+        .prize-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+
+        .prize-amount {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .prize-amount .currency {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .prize-amount .amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .join-tournament-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .join-tournament-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .join-tournament-btn:active {
+            transform: translateY(0);
+        }
+
+        .join-tournament-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* Registration Modal Styles */
+        .registration-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .registration-modal .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .registration-modal .modal-header {
+            text-align: center;
+            padding: 24px 32px 16px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .registration-modal .modal-header i {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+
+        .registration-modal .modal-header h2 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .registration-modal .modal-header p {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .registration-form {
+            padding: 24px 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-help {
+            display: block;
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .terms-group {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            font-weight: normal;
+            line-height: 1.5;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: #667eea;
+        }
+
+        .checkbox-label a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+
+        .registration-summary {
+            margin-top: 24px;
+            padding: 16px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .summary-card h4 {
+            margin: 0 0 12px 0;
+            color: #2c3e50;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-card h4 i {
+            color: #667eea;
+        }
+
+        .summary-details {
+            display: grid;
+            gap: 8px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .summary-item .label {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .summary-item .value {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .modal-actions {
+            padding: 24px 32px;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .cancel-btn {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e1e5e9;
+        }
+
+        .cancel-btn:hover {
+            background: #e9ecef;
+        }
+
+        .proceed-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .proceed-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .proceed-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        /* Mobile responsive enhancements */
+        @media (max-width: 768px) {
+            .badge-text {
+                font-size: 0.75rem;
+                padding: 5px 10px;
+                min-width: 45px;
+            }
+
+            .tournament-card {
+                margin: 0 12px 18px;
+            }
+
+            .card-body {
+                padding: 16px;
+            }
+
+            .tournament-name {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .prize-compact {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 14px;
+            }
+
+            .prize-compact::before {
+                display: none;
+            }
+
+            .prize-entry, .prize-win {
+                padding: 8px 0;
+            }
+
+            .prize-entry::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 1px;
+                background: linear-gradient(to right, #dee2e6, #adb5bd);
+            }
+
+            .join-tournament-btn {
+                padding: 11px 16px;
+                font-size: 0.9rem;
+            }
+
+            /* Registration modal mobile styles */
+            .registration-modal .modal-content {
+                margin: 20px;
+                max-height: calc(100vh - 40px);
+            }
+
+            .registration-modal .modal-header {
+                padding: 20px 24px 12px;
+            }
+
+            .registration-form {
+                padding: 20px 24px;
+            }
+
+            .modal-actions {
+                padding: 20px 24px;
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</body>
+</html>

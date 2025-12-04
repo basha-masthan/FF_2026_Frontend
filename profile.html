@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Future Bound</title>
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+    <div class="profile-page">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <button onclick="goBack()" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </button>
+                <h1><i class="fas fa-user"></i> My Profile</h1>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="profile-content">
+            <div class="profile-container">
+                <!-- Profile Information -->
+                <div class="profile-section">
+                    <div class="section-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h2>Profile Information</h2>
+                    </div>
+
+                    <form id="profileForm" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fas fa-envelope"></i>
+                                    Email Address
+                                </label>
+                                <input type="email" id="email" readonly>
+                                <small>This field cannot be changed</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullname">
+                                    <i class="fas fa-user"></i>
+                                    Full Name
+                                </label>
+                                <input type="text" id="fullname" name="fullname" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mobile">
+                                    <i class="fas fa-phone"></i>
+                                    Mobile Number
+                                </label>
+                                <input type="tel" id="mobile" name="mobile" placeholder="Enter your mobile number">
+                            </div>
+                            <div class="form-group">
+                                <label for="age">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    Age
+                                </label>
+                                <input type="number" id="age" name="age" min="13" max="100" placeholder="Enter your age">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="state">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    State
+                                </label>
+                                <input type="text" id="state" name="state" placeholder="Enter your state">
+                            </div>
+                        </div>
+
+                        <!-- Password Change Section -->
+                        <div class="password-section">
+                            <div class="section-header">
+                                <i class="fas fa-lock"></i>
+                                <h3>Change Password (Optional)</h3>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="currentPassword">
+                                        <i class="fas fa-key"></i>
+                                        Current Password
+                                    </label>
+                                    <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newPassword">
+                                        <i class="fas fa-key"></i>
+                                        New Password
+                                    </label>
+                                    <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">
+                                        <i class="fas fa-key"></i>
+                                        Confirm New Password
+                                    </label>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" onclick="goBack()" class="btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i>
+                                Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Money Sections -->
+                <div class="money-sections">
+                    <!-- Winning Amount -->
+                    <div class="money-card winning-card">
+                        <div class="money-header">
+                            <i class="fas fa-trophy"></i>
+                            <h3>Winning Amount</h3>
+                        </div>
+                        <div class="money-amount">
+                            <span class="currency">$</span>
+                            <span id="winningAmount">0.00</span>
+                        </div>
+                        <div class="money-description">
+                            Total amount won from tournaments
+                        </div>
+                    </div>
+
+                    <!-- Deposit Amount -->
+                    <div class="money-card deposit-card">
+                        <div class="money-header">
+                            <i class="fas fa-wallet"></i>
+                            <h3>Deposit Amount</h3>
+                        </div>
+                        <div class="money-amount">
+                            <span class="currency">$</span>
+                            <span id="depositAmount">0.00</span>
+                        </div>
+                        <div class="money-description">
+                            Total amount deposited
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Check authentication
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            // Verify token and load profile
+            fetch('http://localhost:3000/verify-token', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'auth.html';
+                } else {
+                    loadProfile();
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'auth.html';
+            });
+        });
+
+        // Load user profile
+        async function loadProfile() {
+            try {
+                const response = await fetch('http://localhost:3000/profile', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+
+                    // Populate form fields
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('fullname').value = user.fullname || '';
+                    document.getElementById('mobile').value = user.mobile || '';
+                    document.getElementById('age').value = user.age || '';
+                    document.getElementById('state').value = user.state || '';
+
+                    // Update money sections
+                    document.getElementById('winningAmount').textContent = (user.winningAmount || 0).toFixed(2);
+                    document.getElementById('depositAmount').textContent = (user.depositAmount || 0).toFixed(2);
+                } else {
+                    alert('Failed to load profile');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                alert('Error loading profile');
+            }
+        }
+
+        // Handle profile form submission
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            submitBtn.disabled = true;
+
+            // Collect form data
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            // Validate password fields
+            if (data.newPassword || data.confirmPassword) {
+                if (!data.currentPassword) {
+                    alert('Please enter your current password to change password');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                if (data.newPassword !== data.confirmPassword) {
+                    alert('New passwords do not match');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                if (data.newPassword.length < 6) {
+                    alert('New password must be at least 6 characters long');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+            }
+
+            // Remove empty password fields
+            if (!data.newPassword) {
+                delete data.currentPassword;
+                delete data.newPassword;
+                delete data.confirmPassword;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Profile updated successfully!');
+
+                    // Update local storage if name changed
+                    if (data.fullname) {
+                        localStorage.setItem('userName', data.fullname.split(' ')[0]);
+                    }
+
+                    // Reload profile data
+                    loadProfile();
+                } else {
+                    alert(result.message || 'Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Navigation
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
