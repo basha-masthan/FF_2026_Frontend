@@ -231,7 +231,7 @@
             }
 
             // Verify token
-            fetch('http://localhost:3000/verify-token', {
+            fetch('http://13.239.246.219/verify-token', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(response => {
@@ -343,7 +343,7 @@
         async function loadTournamentsData() {
             try {
                 // Load stats
-                const statsResponse = await fetch('http://localhost:3000/stats', {
+                const statsResponse = await fetch('http://13.239.246.219/stats', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -358,7 +358,7 @@
                 }
 
                 // Load tournaments
-                const tournamentsResponse = await fetch('http://localhost:3000/tournaments', {
+                const tournamentsResponse = await fetch('http://13.239.246.219/tournaments', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -830,7 +830,7 @@
         // Wallet functions
         async function loadWalletData() {
             try {
-                const response = await fetch('http://localhost:3000/profile', {
+                const response = await fetch('http://13.239.246.219/profile', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -1026,7 +1026,7 @@
         // Load transactions from backend
         async function loadTransactions() {
             try {
-                const response = await fetch('http://localhost:3000/transactions', {
+                const response = await fetch('http://13.239.246.219/transactions', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -1201,7 +1201,7 @@
                 proceedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
                 // Create payment order
-                const orderResponse = await fetch('http://localhost:3000/create-payment-order', {
+                const orderResponse = await fetch('http://13.239.246.219/create-payment-order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1217,7 +1217,7 @@
                 const orderData = await orderResponse.json();
 
                 // Get Razorpay key
-                const keyResponse = await fetch('http://localhost:3000/get-razorpay-key');
+                const keyResponse = await fetch('http://13.239.246.219/get-razorpay-key');
                 const keyData = await keyResponse.json();
 
                 // Initialize Razorpay
@@ -1260,7 +1260,7 @@
 
         async function verifyPayment(razorpayResponse, receipt) {
             try {
-                const verifyResponse = await fetch('http://localhost:3000/verify-payment', {
+                const verifyResponse = await fetch('http://13.239.246.219/verify-payment', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -172,7 +172,7 @@
             }
 
             // Verify token and load profile
-            fetch('http://localhost:3000/verify-token', {
+            fetch('http://13.239.246.219/verify-token', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(response => {
@@ -196,7 +196,7 @@
         // Load user profile
         async function loadProfile() {
             try {
-                const response = await fetch('http://localhost:3000/profile', {
+                const response = await fetch('http://13.239.246.219/profile', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -267,7 +267,7 @@
             }
 
             try {
-                const response = await fetch('http://localhost:3000/profile', {
+                const response = await fetch('http://13.239.246.219/profile', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
