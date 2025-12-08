@@ -476,7 +476,7 @@
             return `
                 <div class="tournament-card" style="animation-delay: ${index * 0.1}s">
                     <div class="card-banner">
-                        <img src="${tournament.banner || '../backend/img/ff1.jpg'}" alt="${tournament.tournamentId}" onerror="this.src='../backend/img/ff1.jpg'">
+                        <img src="https://api.futurebound.tech/img/${tournament.banner || 'ff1.jpg'}" alt="${tournament.tournamentId}" onerror="this.src='https://api.futurebound.tech/img/ff1.jpg'">
                         <div class="banner-overlay">
                             <div class="tournament-status ${tournament.status}">
                                 ${tournament.status}
