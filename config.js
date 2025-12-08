@@ -1,7 +1,7 @@
 // API Configuration
 const API_CONFIG = {
-    // BASE_URL: 'https://api.futurebound.tech',
-    BASE_URL : 'http://localhost:3000',
+    BASE_URL: 'https://api.futurebound.tech',
+    // BASE_URL : 'http://localhost:3000',
     ENDPOINTS: {
         // Authentication
         LOGIN: '/login',
