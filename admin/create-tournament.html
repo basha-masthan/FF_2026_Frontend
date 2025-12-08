@@ -297,7 +297,7 @@
             }
 
             // Verify admin token
-            fetch('http://13.239.246.219:3000/admin/verify-token', {
+            fetch('https://api.futurebound.tech//admin/verify-token', {
                 headers: { 'Authorization': `Bearer ${adminToken}` }
             })
             .then(response => {

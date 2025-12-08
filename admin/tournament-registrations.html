@@ -190,7 +190,7 @@
             }
 
             // Verify admin token
-            fetch('http://13.239.246.219:3000/admin/verify-token', {
+            fetch('https://api.futurebound.tech/admin/verify-token', {
                 headers: { 'Authorization': `Bearer ${adminToken}` }
             })
             .then(response => {
@@ -284,7 +284,7 @@
         async function loadTournaments() {
             console.log('Loading tournaments...');
             try {
-                const response = await fetch('http://13.239.246.219:3000/admin/tournaments', {
+                const response = await fetch('https://api.futurebound.tech/admin/tournaments', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
                 });
 
@@ -398,7 +398,7 @@
             currentTournamentId = tournamentId;
 
             try {
-                const response = await fetch(`http://13.239.246.219:3000/admin/tournaments/${encodeURIComponent(tournamentId)}/registrations`, {
+                const response = await fetch(`https://api.futurebound.tech/admin/tournaments/${encodeURIComponent(tournamentId)}/registrations`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
                 });
 
@@ -564,7 +564,7 @@
         // View tournament statistics
         async function viewTournamentStats(tournamentId) {
             try {
-                const response = await fetch(`http://13.239.246.219:3000/admin/tournaments/${tournamentId}/stats`, {
+                const response = await fetch(`https://api.futurebound.tech/admin/tournaments/${tournamentId}/stats`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
                 });
 
