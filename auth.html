@@ -1,257 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Future Bound - Auth</title>
-    <link rel="stylesheet" href="css/auth.css">
-    <script src="config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Portal - Login/Signup</title>
+  <style>
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden !important;
+      position: relative;
+      margin: 0;
+      padding: 0;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Courier New', monospace;
+    }
+    body {
+      background: #0f0f0f;
+      color: #fff;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(#444 1px, transparent 1px);
+      background-size: 20px 20px;
+      animation: moveDots 20s linear infinite;
+      z-index: 0;
+      opacity: 0.15;
+    }
+    @keyframes moveDots {
+      0% { background-position: 0 0; }
+      100% { background-position: 100px 100px; }
+    }
+    body::after {
+      content: "Winzone Arena";
+      font-size: 8rem;
+      color: rgba(255,255,255,0.03);
+      position: absolute;
+      transform: rotate(-30deg);
+      white-space: nowrap;
+      top: 30%;
+      left: -20%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .animated-background {
+      position: fixed;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: url('https://tradebrains-wp.s3.ap-south-1.amazonaws.com/brand/wp-content/uploads/2025/06/Neo-Pepes-NEOP-Presale.jpg') no-repeat center center fixed;
+      background-size: cover;
+      opacity: 0.5;
+      z-index: -1;
+      animation: moveBackground 30s linear infinite;
+    }
+    @keyframes moveBackground {
+      0% { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
+    }
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 90vw;
+      max-width: 400px;
+      height: 100vh;
+      margin: auto;
+      perspective: 1000px;
+    }
+    .card {
+      width: 100%;
+      height: 460px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s ease-in-out;
+    }
+    .container.flipped .card {
+      transform: rotateY(180deg);
+    }
+    .face {
+      background: rgba(20, 20, 20, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      box-shadow: 0 0 20px #0ff2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      z-index: 2;
+    }
+    .face.back {
+      transform: rotateY(180deg);
+    }
+    .face h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .face input {
+      padding: 10px;
+      margin-bottom: 15px;
+      background: #111;
+      border: 1px solid #0ff;
+      color: #0ff;
+      border-radius: 5px;
+      width: 100%;
+      font-size: 1rem;
+    }
+    .face button {
+      padding: 10px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 1.1rem;
+      width: 100%;
+    }
+    .face .toggle {
+      background: none;
+      border: none;
+      margin-top: 20px;
+      color: #0ff;
+      text-align: center;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    #termsModal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      overflow: scroll;
+    }
+    #termsModal .box {
+      margin-top: 2%;
+      background: #111;
+      color: #0ff;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+    }
+    #termsModal p {
+      top: 10%;
+      font-size: 0.9rem;
+      overflow: auto;
+      margin-bottom: 15px;
+    }
+    #termsModal label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    #termsModal input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    @media (max-width: 500px) {
+      .container {
+        width: 90%;
+        height: 100vh;
+      }
+      body::after {
+        font-size: 5rem;
+        top: 35%;
+        left: -30%;
+      }
+    }
+    #btn-btn{
+      padding: 10px;
+    }
+
+    /* Loading Animation Styles */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-container {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading-gif {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .loading-text {
+      color: #0ff;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="flip-card">
-            <div class="flip-card-inner" id="flipCardInner">
-                <!-- Login Side -->
-                <div class="flip-card-front">
-                    <div class="auth-card">
-                        <h1>Login</h1>
-                        <form id="loginForm">
-                            <label for="loginEmail">Email:</label>
-                            <input type="email" id="loginEmail" name="email" required>
-                            <label for="loginPassword">Password:</label>
-                            <input type="password" id="loginPassword" name="password" required>
-                            <button type="submit" id="loginBtn">Login</button>
-                        </form>
-                        <div class="auth-links">
-                            <a href="#" onclick="showForgotPassword()">Forgot Password?</a>
-                            <p>Don't have an account? <a href="#" onclick="flipCard()">Sign Up</a></p>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Signup Side -->
-                <div class="flip-card-back">
-                    <div class="auth-card">
-                        <h1>Sign Up</h1>
-                        <div id="signup-form">
-                            <form id="signupForm">
-                                <label for="fullname">Full Name:</label>
-                                <input type="text" id="fullname" name="fullname" required>
-                                <label for="signupEmail">Email:</label>
-                                <input type="email" id="signupEmail" name="email" required>
-                                <label for="signupPassword">Password:</label>
-                                <input type="password" id="signupPassword" name="password" required>
-                                <button type="submit" id="signupBtn">Sign Up</button>
-                            </form>
-                        </div>
-                        <div id="otp-form" style="display: none;">
-                            <p id="message"></p>
-                            <form id="otpForm">
-                                <label for="otp">Enter OTP:</label>
-                                <input type="text" id="otp" name="otp" required maxlength="5">
-                                <button type="submit">Verify OTP</button>
-                            </form>
-                        </div>
-                        <div class="auth-links">
-                            <p>Already have an account? <a href="#" onclick="flipCard()">Login</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="animated-background"></div>
+
+  <div class="container" id="flipCard">
+    <div class="card">
+
+      <!-- 🔐 Login Face -->
+      <div class="face front">
+        <h2>🔐 Login</h2>
+        <form id="login-form">
+          <input type="email" name="email" placeholder="Email Address" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+          <p id="login-error" style="color: red; margin-top: 10px;"></p>
+        </form>
+        <button class="toggle" onclick="flip()">New here? Sign up</button>
+      </div>
+
+      <!-- 🆕 Signup Face -->
+      <div class="face back">
+        <h2>🆕 Signup</h2>
+        <form id="signup-form">
+          <input type="text" name="fullname" placeholder="Full Name" required />
+          <input type="email" name="email" placeholder="Email Address" required />
+          <input type="password" name="password" placeholder="Password" required minlength="6" />
+          <button type="submit">Register</button>
+          <p id="signup-error" style="color: red; margin-top: 10px;"></p>
+        </form>
+        <button class="toggle" onclick="flip()">Already a user? Login</button>
+      </div>
+
     </div>
+  </div>
 
-    <!-- Forgot Password Modal -->
-    <div id="forgotPasswordModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeForgotPassword()">&times;</span>
-            <h2>Reset Password</h2>
-            <form id="forgotPasswordForm">
-                <label for="resetEmail">Enter your email:</label>
-                <input type="email" id="resetEmail" name="email" required>
-                <button type="submit">Send Reset Link</button>
-            </form>
-        </div>
+  <!-- 📜 Terms & Conditions Modal -->
+  <div id="termsModal">
+    <div class="box">
+      <h2>📜 Terms & Conditions</h2>
+     <p style="font-size: 0.9rem;">
+  By Signing up on WinZone Arena, you agree to the following terms and conditions:
+  <br><br>
+  • You will abide by all tournament rules, schedules, and fair play standards provided for each event.<br>
+  • Any form of cheating, hacking, use of unauthorized software, or manipulation of game mechanics will result in immediate disqualification and permanent ban from the platform.<br>
+  • You understand that match disputes will be resolved at the sole discretion of WinZone Arena, and decisions made by the admin team are final.<br>
+  • Prizes and rewards will be distributed as per the specified structure after results are verified.<br>
+  • Any misuse of the platform, including offensive behavior or impersonation, will lead to account suspension.<br>
+  • WinZone Arena is not responsible for server lag, disconnections, or other technical issues on the part of game publishers or your personal network.<br>
+  • Your participation indicates that you are at least 13 years old or have parental consent, and you agree to provide accurate and verifiable information.<br>
+  • You consent to receiving notifications related to your matches, payments, or platform updates via email or phone.
+  <br><br>
+  By continuing, you acknowledge that you have read, understood, and agreed to these terms.
+</p>
+
+      <label><input type="checkbox" id="acceptTerms"> I accept the terms & conditions</label>
+      <button onclick="confirmTerms()" id="btn-btn" class="bold p-3 bg-green-600">Accept & Continue</button>
+      <button onclick="closeTerms()" style="margin-top: 10px; background: transparent; color: #f66; border: none; text-decoration: underline;">Cancel</button>
     </div>
+  </div>
 
-    <script>
-        const flipCardInner = document.getElementById('flipCardInner');
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        const otpForm = document.getElementById('otpForm');
-        const signupDiv = document.getElementById('signup-form');
-        const otpDiv = document.getElementById('otp-form');
-        const message = document.getElementById('message');
+  <!-- Loading Animation Overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-container">
+      <img src="https://img.pikbest.com/png-images/20190918/cartoon-snail-loading-loading-gif-animation_2734139.png!bw700"
+           alt="Loading..." class="loading-gif">
+      <p class="loading-text">Processing...</p>
+    </div>
+  </div>
 
-        function flipCard() {
-            flipCardInner.classList.toggle('flipped');
+  <!-- OTP Verification Modal -->
+  <div id="otpModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 9999;">
+    <div style="background: rgba(20, 20, 20, 0.9); color: #0ff; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 0 20px #0ff2;">
+      <h2 style="margin-bottom: 20px; color: #0ff;">🔐 Verify Your Email</h2>
+      <p style="margin-bottom: 20px; color: #fff;">We've sent a 5-digit OTP to your email. Please enter it below:</p>
+      <input type="text" id="otpInput" placeholder="Enter 5-digit OTP" maxlength="5" style="padding: 10px; background: #111; border: 1px solid #0ff; color: #0ff; border-radius: 5px; width: 100%; text-align: center; font-size: 1.2rem; margin-bottom: 20px;">
+      <button onclick="verifyOTP()" style="padding: 10px 20px; background: #0ff; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-right: 10px;">Verify OTP</button>
+      <button onclick="closeOTPModal()" style="padding: 10px 20px; background: transparent; color: #f66; border: 1px solid #f66; border-radius: 5px; cursor: pointer;">Cancel</button>
+      <p id="otpError" style="color: red; margin-top: 15px;"></p>
+    </div>
+  </div>
+
+  <script>
+    function flip() {
+      document.getElementById('flipCard').classList.toggle('flipped');
+    }
+
+    // Loading functions
+    function showLoading(text = 'Processing...') {
+      document.getElementById('loadingOverlay').classList.add('active');
+      document.querySelector('.loading-text').textContent = text;
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.remove('active');
+    }
+
+    // OTP Modal functions
+    function showOTPModal() {
+      document.getElementById('otpModal').style.display = 'flex';
+      document.getElementById('otpInput').focus();
+    }
+
+    function closeOTPModal() {
+      document.getElementById('otpModal').style.display = 'none';
+      document.getElementById('otpInput').value = '';
+      document.getElementById('otpError').textContent = '';
+    }
+
+    let tempFormData = {};
+
+    document.getElementById("signup-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      tempFormData = {
+        fullname: form.fullname.value,
+        email: form.email.value,
+        password: form.password.value
+      };
+      document.getElementById("termsModal").style.display = "flex";
+    });
+
+    function closeTerms() {
+      document.getElementById("termsModal").style.display = "none";
+      document.getElementById("acceptTerms").checked = false;
+    }
+
+    async function confirmTerms() {
+      const accepted = document.getElementById("acceptTerms").checked;
+      if (!accepted) {
+        alert("You must accept the terms and conditions to continue.");
+        return;
+      }
+
+      document.getElementById("termsModal").style.display = "none";
+      showLoading('Creating your account...');
+
+      try {
+        const res = await fetch("https://api.futurebound.tech/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tempFormData)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          hideLoading();
+          showOTPModal();
+        } else {
+          const data = await res.json();
+          hideLoading();
+          document.getElementById("signup-error").textContent = data.message || "Something went wrong";
         }
+      } catch (error) {
+        hideLoading();
+        document.getElementById("signup-error").textContent = "Network error. Please try again.";
+      }
+    }
 
-        // Login functionality
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(loginForm);
-            const data = Object.fromEntries(formData);
+    async function verifyOTP() {
+      const otp = document.getElementById('otpInput').value.trim();
+      if (!otp || otp.length !== 5) {
+        document.getElementById('otpError').textContent = 'Please enter a valid 5-digit OTP';
+        return;
+      }
 
-            const loginBtn = document.getElementById('loginBtn');
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Logging in...';
+      showLoading('Verifying OTP...');
 
-            try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.LOGIN), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-
-                if (response.ok) {
-                    // Store token and user data
-                    localStorage.setItem('token', result.token);
-                    localStorage.setItem('userName', result.user.fullname.split(' ')[0]);
-                    localStorage.setItem('userEmail', result.user.email);
-
-                    // Redirect to home
-                    window.location.href = 'index.html';
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                alert('Login failed: ' + error.message);
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Login';
-            }
+      try {
+        const res = await fetch("https://api.futurebound.tech/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: tempFormData.email,
+            otp: otp
+          })
         });
 
-        // Signup functionality
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(signupForm);
-            const data = Object.fromEntries(formData);
-
-            // Show loading
-            signupDiv.style.display = 'none';
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading';
-            loadingDiv.innerHTML = '<div class="spinner"></div><p class="loading-text">Sending OTP to your email...</p>';
-            document.querySelector('.auth-card').insertBefore(loadingDiv, document.querySelector('.auth-links'));
-
-            try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SIGNUP), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    message.textContent = result.message;
-                    loadingDiv.remove();
-                    otpDiv.style.display = 'block';
-                } else {
-                    alert(result.message);
-                    loadingDiv.remove();
-                    signupDiv.style.display = 'block';
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-                loadingDiv.remove();
-                signupDiv.style.display = 'block';
-            }
-        });
-
-        // OTP verification
-        otpForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const otp = document.getElementById('otp').value;
-
-            try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_OTP), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, otp })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    alert('Account created successfully! Please login with your credentials.');
-                    flipCard(); // Flip to login side
-                    otpDiv.style.display = 'none';
-                    signupDiv.style.display = 'block';
-                    signupForm.reset();
-                    otpForm.reset();
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
-
-        // Forgot password functionality
-        function showForgotPassword() {
-            document.getElementById('forgotPasswordModal').style.display = 'block';
+        if (res.ok) {
+          const data = await res.json();
+          hideLoading();
+          alert('Account created successfully! Welcome to Winzone Arena!');
+          closeOTPModal();
+          window.location.href = 'index.html';
+        } else {
+          const data = await res.json();
+          hideLoading();
+          document.getElementById('otpError').textContent = data.message || 'Invalid OTP. Please try again.';
         }
+      } catch (error) {
+        hideLoading();
+        document.getElementById('otpError').textContent = 'Network error. Please try again.';
+      }
+    }
 
-        function closeForgotPassword() {
-            document.getElementById('forgotPasswordModal').style.display = 'none';
-        }
+    document.getElementById("login-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const email = form.email.value;
+      const password = form.password.value;
 
-        document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('resetEmail').value;
+      const res = await fetch("https://api.futurebound.tech/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-            try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.FORGOT_PASSWORD), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                const result = await response.json();
-                alert(result.message);
-                closeForgotPassword();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userName', data.user.fullname.split(' ')[0]);
+        localStorage.setItem('userEmail', data.user.email);
+        window.location.href = "index.html";
+      } else {
+        const data = await res.json();
+        document.getElementById("login-error").textContent = data.message || "Invalid credentials";
+      }
+    });
 
-        // Check if already logged in
-        window.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
-            if (token) {
-                // Verify token validity
-                fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_TOKEN), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json().then(data => {
-                            window.location.href = 'index.html';
-                        });
-                    } else {
-                        // Token is invalid, remove it
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('userName');
-                        localStorage.removeItem('userEmail');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Token verification failed:', error);
-                    // Remove invalid token on network errors
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userName');
-                    localStorage.removeItem('userEmail');
-                });
-            }
-        });
+    window.addEventListener('resize', () => window.scrollTo(0, 0));
+    window.onload = () => window.scrollTo(0, 0);
+  </script>
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('forgotPasswordModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
 </body>
 </html>

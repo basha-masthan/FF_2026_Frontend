@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winzone Arena - Free Fire Tournament Platform</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <nav class="navbar">
+            <div class="navbar-content">
+                <a href="#" class="navbar-brand">
+                    <i class="fas fa-trophy"></i>
+                    Winzone Arena
+                </a>
+                <div class="nav-actions">
+                    <button class="btn-secondary" onclick="goToLogin()">Login</button>
+                    <button class="btn-primary" onclick="goToSignup()">Get Started</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span class="highlight">Dominate</span> the Battlegrounds
+                </h1>
+                <p class="hero-subtitle">
+                    Join the ultimate Free Fire tournament platform where champions are made.
+                    Compete in organized tournaments, climb the leaderboards, and win amazing prizes!
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalTournaments">0</div>
+                        <div class="stat-label">Active Tournaments</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalPlayers">0</div>
+                        <div class="stat-label">Registered Players</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalPrize">$0</div>
+                        <div class="stat-label">Prize Pool</div>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <button class="btn-primary-large" onclick="goToSignup()">
+                        <i class="fas fa-play"></i>
+                        Join Tournament
+                    </button>
+                    <button class="btn-secondary-large" onclick="scrollToFeatures()">
+                        <i class="fas fa-info-circle"></i>
+                        Learn More
+                    </button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="game-preview">
+                    <img src="https://api.futurebound.tech/img/ff1.jpg" alt="Free Fire Tournament" class="preview-image">
+                    <div class="preview-overlay">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Live Tournaments</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why Choose Winzone Arena?</h2>
+                <p>The most trusted platform for Free Fire tournaments</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Organized Tournaments</h3>
+                    <p>Professional tournament management with fair play policies and instant prize distribution.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure & Fair</h3>
+                    <p>Advanced anti-cheat systems and verified tournament organizers ensure fair competition.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3>Instant Payouts</h3>
+                    <p>Win prizes instantly credited to your wallet. Withdraw winnings anytime.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Community Driven</h3>
+                    <p>Join thousands of gamers in competitive tournaments and build your gaming reputation.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Optimized</h3>
+                    <p>Seamlessly manage tournaments and track progress from your mobile device.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Round-the-clock customer support to help with any tournament-related queries.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tournament Types Section -->
+    <section class="tournament-types-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Tournament Modes</h2>
+                <p>Choose your preferred battle style</p>
+            </div>
+
+            <div class="tournament-grid">
+                <div class="tournament-type-card">
+                    <div class="type-image">
+                        <img src="https://api.futurebound.tech/img/ff-duo.jpg" alt="Clash Squad Duo">
+                    </div>
+                    <div class="type-content">
+                        <h3>Clash Squad Duo</h3>
+                        <p>Team up with a partner in intense 2v2 battles. Perfect for strategic gameplay and coordination.</p>
+                        <div class="type-badge">2v2</div>
+                    </div>
+                </div>
+
+                <div class="tournament-type-card">
+                    <div class="type-image">
+                        <img src="https://api.futurebound.tech/img/ff-squard.webp" alt="Clash Squad Squad">
+                    </div>
+                    <div class="type-content">
+                        <h3>Clash Squad Squad</h3>
+                        <p>Large-scale team battles with 4-6 players. Experience epic squad warfare and massive rewards.</p>
+                        <div class="type-badge">4v4/6v6</div>
+                    </div>
+                </div>
+
+                <div class="tournament-type-card">
+                    <div class="type-image">
+                        <img src="https://api.futurebound.tech/img/ff-lone_wolf.jpg" alt="Lone Wolf">
+                    </div>
+                    <div class="type-content">
+                        <h3>Lone Wolf</h3>
+                        <p>Solo competitive matches where only the strongest survive. Test your individual skills.</p>
+                        <div class="type-badge">1v1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Become a Champion?</h2>
+                <p>Join thousands of players competing in the most exciting Free Fire tournaments. Your victory awaits!</p>
+                <div class="cta-buttons">
+                    <button class="btn-primary-large" onclick="goToSignup()">
+                        <i class="fas fa-rocket"></i>
+                        Start Your Journey
+                    </button>
+                    <button class="btn-secondary-large" onclick="goToLogin()">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Already Have Account?
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="fas fa-trophy"></i>
+                    <span>Winzone Arena</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#" onclick="goToLogin()">Login</a>
+                    <a href="#" onclick="goToSignup()">Sign Up</a>
+                    <a href="mailto:official4basha@gmail.com">Contact</a>
+                </div>
+                <div class="footer-copyright">
+                    © 2025 Winzone Arena. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Load stats on page load
+        window.addEventListener('DOMContentLoaded', loadStats);
+
+        async function loadStats() {
+            try {
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.STATS));
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalTournaments').textContent = stats.totalTournaments || 0;
+                    document.getElementById('totalPlayers').textContent = stats.totalPlayers || 0;
+                    document.getElementById('totalPrize').textContent = '$' + (stats.totalPrizePool || 0).toFixed(0);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function goToLogin() {
+            window.location.href = 'auth.html';
+        }
+
+        function goToSignup() {
+            window.location.href = 'auth.html';
+        }
+
+        function scrollToFeatures() {
+            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+
+    <style>
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-secondary, .btn-primary {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-text {
+            padding-right: 2rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .highlight {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary-large, .btn-secondary-large {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-large {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary-large {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary-large:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-image {
+            display: flex;
+            justify-content: center;
+        }
+
+        .game-preview {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: block;
+        }
+
+        .preview-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 2rem 1.5rem 1.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 5rem 0;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Tournament Types Section */
+        .tournament-types-section {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .tournament-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .tournament-type-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .tournament-type-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .type-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .type-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .type-content {
+            padding: 2rem;
+        }
+
+        .type-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .type-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .type-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 5rem 0;
+            color: white;
+        }
+
+        .cta-content {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Footer */
+        .footer {
+            background: #333;
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.7;
+        }
+
+        .footer-copyright {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .navbar-content {
+                padding: 1rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+            }
+
+            .hero-section {
+                min-height: auto;
+                padding: 1rem 0;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+                padding: 1rem;
+            }
+
+            .hero-text {
+                padding-right: 0;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+                line-height: 1.2;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .stat-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .btn-primary-large, .btn-secondary-large {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+                justify-content: center;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .preview-image {
+                max-width: 280px;
+            }
+
+            .preview-overlay {
+                padding: 1.5rem 1rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .features-section, .tournament-types-section, .cta-section {
+                padding: 3rem 0;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .section-header p {
+                font-size: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .feature-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .tournament-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .tournament-type-card {
+                margin: 0 auto;
+                max-width: 100%;
+            }
+
+            .type-image {
+                height: 150px;
+            }
+
+            .type-content {
+                padding: 1.5rem;
+            }
+
+            .type-content h3 {
+                font-size: 1.3rem;
+            }
+
+            .cta-content h2 {
+                font-size: 2rem;
+            }
+
+            .cta-content p {
+                font-size: 1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .footer {
+                padding: 1.5rem 0;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+                margin: 0;
+            }
+
+            .footer-brand {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .hero-stats {
+                gap: 0.8rem;
+            }
+
+            .stat-number {
+                font-size: 1.3rem;
+            }
+
+            .stat-label {
+                font-size: 0.8rem;
+            }
+
+            .preview-image {
+                max-width: 250px;
+            }
+
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.2rem;
+            }
+
+            .type-content h3 {
+                font-size: 1.2rem;
+            }
+
+            .cta-content h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</body>
+</html>
