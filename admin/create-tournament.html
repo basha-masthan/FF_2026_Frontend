@@ -6,6 +6,7 @@
     <title>Create Tournament - Future Bound Admin</title>
     <link rel="stylesheet" href="../css/create-tournament.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="../config.js"></script>
 </head>
 <body>
     <div class="create-tournament-page">
@@ -320,13 +321,13 @@
         // Load available banner images
         async function loadBannerOptions() {
             try {
-                const response = await fetch('https://api.futurebound.tech/banners');
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.BANNERS));
                 const banners = await response.json();
 
                 const bannerGrid = document.getElementById('bannerGrid');
                 bannerGrid.innerHTML = banners.map(banner => `
                     <div class="banner-option" onclick="selectBanner('${banner}')">
-                        <img src="https://api.futurebound.tech/img/${banner}" alt="${banner}" loading="lazy">
+                        <img src="${API_CONFIG.BASE_URL}/img/${banner}" alt="${banner}" loading="lazy">
                         <div class="banner-overlay">
                             <span class="banner-name">${banner}</span>
                         </div>
@@ -347,7 +348,7 @@
 
             // Update preview
             const preview = document.getElementById('bannerPreview');
-            preview.innerHTML = `<img src="https://api.futurebound.tech/img/${bannerName}" alt="${bannerName}">`;
+            preview.innerHTML = `<img src="${API_CONFIG.BASE_URL}/img/${bannerName}" alt="${bannerName}">`;
 
             // Remove selected class from all options
             document.querySelectorAll('.banner-option').forEach(option => {
@@ -508,7 +509,7 @@
             try {
                 console.log('Sending tournament data:', tournamentData); // Debug log
 
-                const response = await fetch('https://api.futurebound.tech/admin/tournaments', {
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_TOURNAMENTS), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

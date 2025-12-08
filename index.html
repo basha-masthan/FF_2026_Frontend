@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/index.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="config.js"></script>
 </head>
 <body>
     <!-- Navbar -->
@@ -203,6 +204,14 @@
         </div>
     </div>
 
+    <!-- Loading Animation Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-container">
+            <img src="https://img.pikbest.com/png-images/20190918/cartoon-snail-loading-loading-gif-animation_2734139.png!bw700"
+                 alt="Loading..." class="loading-gif">
+        </div>
+    </div>
+
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <div class="nav-item" onclick="navigateTo('matches')">
@@ -222,6 +231,15 @@
     <script>
 
 
+        // Loading animation functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
         // Check authentication
         window.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('token');
@@ -230,8 +248,10 @@
                 return;
             }
 
+            showLoading();
+
             // Verify token
-            fetch('https://api.futurebound.tech/verify-token', {
+            fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_TOKEN), {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(response => {
@@ -245,6 +265,7 @@
                         loadTournamentsData();
                     });
                 } else {
+                    hideLoading();
                     localStorage.removeItem('token');
                     localStorage.removeItem('userName');
                     localStorage.removeItem('userEmail');
@@ -253,6 +274,7 @@
             })
             .catch((error) => {
                 console.error('Token verification failed:', error);
+                hideLoading();
                 localStorage.removeItem('token');
                 localStorage.removeItem('userName');
                 localStorage.removeItem('userEmail');
@@ -342,8 +364,10 @@
         // Load tournaments data
         async function loadTournamentsData() {
             try {
+                showLoading();
+
                 // Load stats
-                const statsResponse = await fetch('https://api.futurebound.tech/stats', {
+                const statsResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.STATS), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -358,7 +382,7 @@
                 }
 
                 // Load tournaments
-                const tournamentsResponse = await fetch('https://api.futurebound.tech/tournaments', {
+                const tournamentsResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -376,6 +400,8 @@
             } catch (error) {
                 console.error('Error loading tournaments data:', error);
                 showEmptyTournaments();
+            } finally {
+                hideLoading();
             }
         }
 
@@ -476,7 +502,7 @@
             return `
                 <div class="tournament-card" style="animation-delay: ${index * 0.1}s">
                     <div class="card-banner">
-                        <img src="https://api.futurebound.tech/img/${tournament.banner || 'ff1.jpg'}" alt="${tournament.tournamentId}" onerror="this.src='https://api.futurebound.tech/img/ff1.jpg'">
+                        <img src="${API_CONFIG.BASE_URL}/img/${tournament.banner || 'ff1.jpg'}" alt="${tournament.tournamentId}" onerror="this.src='${API_CONFIG.BASE_URL}/img/ff1.jpg'">
                         <div class="banner-overlay">
                             <div class="tournament-status ${tournament.status}">
                                 ${tournament.status}
@@ -490,20 +516,6 @@
                         <div class="tournament-info">
                             <div class="info-grid">
                                 <div class="info-item">
-                                    <i class="fas fa-clock"></i>
-                                    <div class="info-content">
-                                        <span class="info-label">Start Time</span>
-                                        <span class="info-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                    </div>
-                                </div>
-                                <div class="info-item">
-                                    <i class="fas fa-users"></i>
-                                    <div class="info-content">
-                                        <span class="info-label">Available Slots</span>
-                                        <span class="info-value">${tournament.maxSlots - tournament.registeredPlayers === 0 ? 'slots are filled' : `total ${tournament.maxSlots} available ${tournament.maxSlots - tournament.registeredPlayers}`}</span>
-                                    </div>
-                                </div>
-                                <div class="info-item">
                                     <i class="fas fa-gamepad"></i>
                                     <div class="info-content">
                                         <span class="info-label">Game Mode</span>
@@ -515,6 +527,23 @@
                                     <div class="info-content">
                                         <span class="info-label">Map</span>
                                         <span class="info-value">${tournament.map}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-users"></i>
+                                    <div class="info-content">
+                                        <span class="info-label">SLOTS</span>
+                                        <span class="info-value">
+                                            <span class="available-slots">${tournament.maxSlots - tournament.registeredPlayers === 0 ? 'FULL' : `${tournament.maxSlots - tournament.registeredPlayers} AVAILABLE`}</span>
+                                            <span class="total-slots-box">${tournament.maxSlots}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div class="info-content">
+                                        <span class="info-label">Start Time</span>
+                                        <span class="info-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                                     </div>
                                 </div>
                             </div>
@@ -752,7 +781,7 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
 
             try {
-                const response = await fetch(`https://api.futurebound.tech/tournaments/${tournamentId}/register`, {
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENT_REGISTER(tournamentId)), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -830,7 +859,9 @@
         // Wallet functions
         async function loadWalletData() {
             try {
-                const response = await fetch('https://api.futurebound.tech/profile', {
+                showLoading();
+
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -847,13 +878,17 @@
                 }
             } catch (error) {
                 console.error('Error loading wallet data:', error);
+            } finally {
+                hideLoading();
             }
         }
 
         // Load my matches data
         async function loadMyMatchesData() {
             try {
-                const response = await fetch('https://api.futurebound.tech/my-tournaments', {
+                showLoading();
+
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.MY_TOURNAMENTS), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -864,7 +899,7 @@
                     const tournamentsWithRegistration = await Promise.all(
                         tournaments.map(async (tournament) => {
                             try {
-                                const regResponse = await fetch(`https://api.futurebound.tech/user/registration/${tournament._id}`, {
+                                const regResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.USER_REGISTRATION(tournament._id)), {
                                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                                 });
 
@@ -888,6 +923,8 @@
             } catch (error) {
                 console.error('Error loading my matches:', error);
                 showMyMatchesError();
+            } finally {
+                hideLoading();
             }
         }
 
@@ -1026,7 +1063,9 @@
         // Load transactions from backend
         async function loadTransactions() {
             try {
-                const response = await fetch('https://api.futurebound.tech/transactions', {
+                showLoading();
+
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TRANSACTIONS), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -1088,6 +1127,8 @@
                         </div>
                     </div>
                 `;
+            } finally {
+                hideLoading();
             }
         }
 
@@ -1201,7 +1242,7 @@
                 proceedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
                 // Create payment order
-                const orderResponse = await fetch('https://api.futurebound.tech/create-payment-order', {
+                const orderResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.CREATE_PAYMENT_ORDER), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1217,7 +1258,7 @@
                 const orderData = await orderResponse.json();
 
                 // Get Razorpay key
-                const keyResponse = await fetch('https://api.futurebound.tech/get-razorpay-key');
+                const keyResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.GET_RAZORPAY_KEY));
                 const keyData = await keyResponse.json();
 
                 // Initialize Razorpay
@@ -1260,7 +1301,7 @@
 
         async function verifyPayment(razorpayResponse, receipt) {
             try {
-                const verifyResponse = await fetch('https://api.futurebound.tech/verify-payment', {
+                const verifyResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_PAYMENT), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1346,6 +1387,8 @@
             overflow: hidden;
             transition: transform 0.2s;
             margin-bottom: 20px;
+            width: 100%;
+            max-width: 392px;
         }
 
         .tournament-card:hover {
@@ -1469,20 +1512,41 @@
         }
 
         .info-value {
-            display: block;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 0.8rem;
             color: #333;
             font-weight: 500;
+            width: 100%;
+        }
+
+        .available-slots {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .total-slots-box {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            color: #667eea;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
         }
 
         .prize-section {
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }
 
         .prize-compact {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border-radius: 10px;
             padding: 10px 15px;
@@ -1849,27 +1913,19 @@
             }
 
             .prize-compact {
-                flex-direction: column;
-                gap: 10px;
-                padding: 12px 14px;
-            }
-
-            .prize-compact::before {
-                display: none;
+                padding: 8px 12px;
             }
 
             .prize-entry, .prize-win {
-                padding: 8px 0;
+                flex: 1;
             }
 
-            .prize-entry::after {
-                content: '';
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                height: 1px;
-                background: linear-gradient(to right, #dee2e6, #adb5bd);
+            .prize-label {
+                font-size: 0.6rem;
+            }
+
+            .prize-amount .amount {
+                font-size: 1rem;
             }
 
             .join-tournament-btn {
@@ -1899,6 +1955,45 @@
             .modal-btn {
                 width: 100%;
             }
+        }
+    </style>
+
+    <!-- Loading Animation Styles -->
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-gif {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </body>
