@@ -180,38 +180,50 @@
                 return;
             }
 
-            // Verify token and load profile
-            fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_TOKEN), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-            .then(response => {
-                if (!response.ok) {
+            // Assume user is logged in and load profile
+                loadProfile();
+            });
+    
+            // Authenticated fetch helper
+            async function authenticatedFetch(url, options = {}) {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'landing.html';
+                    return;
+                }
+    
+                const authHeaders = {
+                    'Authorization': `Bearer ${token}`,
+                    ...options.headers
+                };
+    
+                const authOptions = {
+                    ...options,
+                    headers: authHeaders
+                };
+    
+                const response = await fetch(url, authOptions);
+    
+                if (response.status === 401) {
+                    // Token expired or invalid
                     localStorage.removeItem('token');
                     localStorage.removeItem('userName');
                     localStorage.removeItem('userEmail');
                     window.location.href = 'landing.html';
-                } else {
-                    loadProfile();
+                    return;
                 }
-            })
-            .catch(() => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userEmail');
-                window.location.href = 'landing.html';
-            });
-        });
-
-        // Load user profile
+    
+                return response;
+            }
+    
+            // Load user profile
         async function loadProfile() {
             try {
                 showLoading();
 
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE), {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
+                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE));
 
-                if (response.ok) {
+                if (response && response.ok) {
                     const user = await response.json();
 
                     // Populate form fields
@@ -282,14 +294,15 @@
             }
 
             try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE), {
+                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE), {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(data)
                 });
+
+                if (!response) return;
 
                 const result = await response.json();
 

@@ -243,6 +243,38 @@
             document.getElementById('loadingOverlay').classList.remove('active');
         }
 
+        // Authenticated fetch helper
+        async function authenticatedFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'landing.html';
+                return;
+            }
+
+            const authHeaders = {
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+
+            const authOptions = {
+                ...options,
+                headers: authHeaders
+            };
+
+            const response = await fetch(url, authOptions);
+
+            if (response.status === 401) {
+                // Token expired or invalid
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'landing.html';
+                return;
+            }
+
+            return response;
+        }
+
         // Check authentication
         window.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('token');
@@ -251,38 +283,13 @@
                 return;
             }
 
-            showLoading();
+            // Assume user is logged in if token exists
+            // Update user name in navbar
+            const userName = localStorage.getItem('userName') || 'User';
+            document.getElementById('userName').textContent = userName;
 
-            // Verify token
-            fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_TOKEN), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json().then(data => {
-                            // Update user name in navbar
-                            const userName = localStorage.getItem('userName') || 'User';
-                            document.getElementById('userName').textContent = userName;
-
-                            // Load initial content (tournaments by default)
-                            loadTournamentsData();
-                        });
-                    } else {
-                        hideLoading();
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('userName');
-                        localStorage.removeItem('userEmail');
-                        window.location.href = 'landing.html';
-                    }
-                })
-                .catch((error) => {
-                    console.error('Token verification failed:', error);
-                    hideLoading();
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userName');
-                    localStorage.removeItem('userEmail');
-                    window.location.href = 'landing.html';
-                });
+            // Load initial content (tournaments by default)
+            loadTournamentsData();
         });
 
         // Profile dropdown functionality
@@ -370,11 +377,9 @@
                 showLoading();
 
                 // Load stats
-                const statsResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.STATS), {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
+                const statsResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.STATS));
 
-                if (statsResponse.ok) {
+                if (statsResponse && statsResponse.ok) {
                     const contentType = statsResponse.headers.get('content-type');
                     if (contentType && contentType.includes('application/json')) {
                         const stats = await statsResponse.json();
@@ -385,11 +390,9 @@
                 }
 
                 // Load tournaments
-                const tournamentsResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS), {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
+                const tournamentsResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS));
 
-                if (tournamentsResponse.ok) {
+                if (tournamentsResponse && tournamentsResponse.ok) {
                     const contentType = tournamentsResponse.headers.get('content-type');
                     if (contentType && contentType.includes('application/json')) {
                         const tournaments = await tournamentsResponse.json();
@@ -698,11 +701,9 @@
         // Fetch tournament details
         async function fetchTournamentDetails(tournamentId) {
             try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS), {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
+                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS));
 
-                if (response.ok) {
+                if (response && response.ok) {
                     const tournaments = await response.json();
                     const tournament = tournaments.find(t => t._id === tournamentId);
 
@@ -784,11 +785,10 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
 
             try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENT_REGISTER(tournamentId)), {
+                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENT_REGISTER(tournamentId)), {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         freeFireId,
@@ -864,11 +864,9 @@
             try {
                 showLoading();
 
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE), {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
+                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE));
 
-                if (response.ok) {
+                if (response && response.ok) {
                     const user = await response.json();
                     const totalBalance = (user.winningAmount || 0) + (user.depositAmount || 0);
 
@@ -891,20 +889,16 @@
             try {
                 showLoading();
 
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.MY_TOURNAMENTS), {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
+                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.MY_TOURNAMENTS));
 
-                if (response.ok) {
+                if (response && response.ok) {
                     const tournaments = await response.json();
 
                     // Fetch registration details for each tournament
                     const tournamentsWithRegistration = await Promise.all(
                         tournaments.map(async (tournament) => {
                             try {
-                                const regResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.USER_REGISTRATION(tournament._id)), {
-                                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                                });
+                                const regResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.USER_REGISTRATION(tournament._id)));
 
                                 if (regResponse.ok) {
                                     const registration = await regResponse.json();
@@ -1068,11 +1062,9 @@
             try {
                 showLoading();
 
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TRANSACTIONS), {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
+                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TRANSACTIONS));
 
-                if (!response.ok) {
+                if (!response || !response.ok) {
                     throw new Error('Failed to load transactions');
                 }
 
@@ -1245,16 +1237,15 @@
                 proceedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
                 // Create payment order
-                const orderResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.CREATE_PAYMENT_ORDER), {
+                const orderResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.CREATE_PAYMENT_ORDER), {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ amount })
                 });
 
-                if (!orderResponse.ok) {
+                if (!orderResponse || !orderResponse.ok) {
                     throw new Error('Failed to create payment order');
                 }
 
@@ -1304,11 +1295,10 @@
 
         async function verifyPayment(razorpayResponse, receipt) {
             try {
-                const verifyResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_PAYMENT), {
+                const verifyResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_PAYMENT), {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         razorpay_order_id: razorpayResponse.razorpay_order_id,
@@ -1317,6 +1307,8 @@
                         receipt: receipt
                     })
                 });
+
+                if (!verifyResponse) return;
 
                 const result = await verifyResponse.json();
 
