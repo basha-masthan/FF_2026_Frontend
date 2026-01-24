@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Game Portal - Login/Signup</title>
   <style>
-    html, body {
+    html,
+    body {
       width: 100vw;
       height: 100vh;
       overflow: hidden !important;
@@ -13,16 +15,19 @@
       margin: 0;
       padding: 0;
     }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Courier New', monospace;
     }
+
     body {
       background: #0f0f0f;
       color: #fff;
     }
+
     body::before {
       content: "";
       position: absolute;
@@ -33,14 +38,21 @@
       z-index: 0;
       opacity: 0.15;
     }
+
     @keyframes moveDots {
-      0% { background-position: 0 0; }
-      100% { background-position: 100px 100px; }
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 100px 100px;
+      }
     }
+
     body::after {
       content: "Winzone Arena";
       font-size: 8rem;
-      color: rgba(255,255,255,0.03);
+      color: rgba(255, 255, 255, 0.03);
       position: absolute;
       transform: rotate(-30deg);
       white-space: nowrap;
@@ -49,6 +61,7 @@
       z-index: 0;
       pointer-events: none;
     }
+
     .animated-background {
       position: fixed;
       left: 0;
@@ -60,10 +73,17 @@
       z-index: -1;
       animation: moveBackground 30s linear infinite;
     }
+
     @keyframes moveBackground {
-      0% { background-position: 0 0; }
-      100% { background-position: 100% 100%; }
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 100% 100%;
+      }
     }
+
     .container {
       display: flex;
       align-items: center;
@@ -74,6 +94,7 @@
       margin: auto;
       perspective: 1000px;
     }
+
     .card {
       width: 100%;
       height: 460px;
@@ -81,9 +102,11 @@
       transform-style: preserve-3d;
       transition: transform 0.8s ease-in-out;
     }
+
     .container.flipped .card {
       transform: rotateY(180deg);
     }
+
     .face {
       background: rgba(20, 20, 20, 0.9);
       padding: 30px;
@@ -98,13 +121,16 @@
       justify-content: center;
       z-index: 2;
     }
+
     .face.back {
       transform: rotateY(180deg);
     }
+
     .face h2 {
       text-align: center;
       margin-bottom: 20px;
     }
+
     .face input {
       padding: 10px;
       margin-bottom: 15px;
@@ -115,6 +141,7 @@
       width: 100%;
       font-size: 1rem;
     }
+
     .face button {
       padding: 10px;
       background: #0ff;
@@ -127,6 +154,7 @@
       font-size: 1.1rem;
       width: 100%;
     }
+
     .face .toggle {
       background: none;
       border: none;
@@ -136,17 +164,21 @@
       text-decoration: underline;
       cursor: pointer;
     }
+
     #termsModal {
       display: none;
       position: fixed;
       z-index: 9999;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
       justify-content: center;
       align-items: center;
       overflow: scroll;
     }
+
     #termsModal .box {
       margin-top: 2%;
       background: #111;
@@ -156,32 +188,38 @@
       max-width: 400px;
       width: 90%;
     }
+
     #termsModal p {
       top: 10%;
       font-size: 0.9rem;
       overflow: auto;
       margin-bottom: 15px;
     }
+
     #termsModal label {
       display: flex;
       align-items: center;
       margin-bottom: 15px;
     }
+
     #termsModal input[type="checkbox"] {
       margin-right: 8px;
     }
+
     @media (max-width: 500px) {
       .container {
         width: 90%;
         height: 100vh;
       }
+
       body::after {
         font-size: 5rem;
         top: 35%;
         left: -30%;
       }
     }
-    #btn-btn{
+
+    #btn-btn {
       padding: 10px;
     }
 
@@ -218,8 +256,13 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .loading-text {
@@ -231,6 +274,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="animated-background"></div>
@@ -270,44 +314,58 @@
   <div id="termsModal">
     <div class="box">
       <h2>📜 Terms & Conditions</h2>
-     <p style="font-size: 0.9rem;">
-  By Signing up on WinZone Arena, you agree to the following terms and conditions:
-  <br><br>
-  • You will abide by all tournament rules, schedules, and fair play standards provided for each event.<br>
-  • Any form of cheating, hacking, use of unauthorized software, or manipulation of game mechanics will result in immediate disqualification and permanent ban from the platform.<br>
-  • You understand that match disputes will be resolved at the sole discretion of WinZone Arena, and decisions made by the admin team are final.<br>
-  • Prizes and rewards will be distributed as per the specified structure after results are verified.<br>
-  • Any misuse of the platform, including offensive behavior or impersonation, will lead to account suspension.<br>
-  • WinZone Arena is not responsible for server lag, disconnections, or other technical issues on the part of game publishers or your personal network.<br>
-  • Your participation indicates that you are at least 13 years old or have parental consent, and you agree to provide accurate and verifiable information.<br>
-  • You consent to receiving notifications related to your matches, payments, or platform updates via email or phone.
-  <br><br>
-  By continuing, you acknowledge that you have read, understood, and agreed to these terms.
-</p>
+      <p style="font-size: 0.9rem;">
+        By Signing up on WinZone Arena, you agree to the following terms and conditions:
+        <br><br>
+        • You will abide by all tournament rules, schedules, and fair play standards provided for each event.<br>
+        • Any form of cheating, hacking, use of unauthorized software, or manipulation of game mechanics will result in
+        immediate disqualification and permanent ban from the platform.<br>
+        • You understand that match disputes will be resolved at the sole discretion of WinZone Arena, and decisions
+        made by the admin team are final.<br>
+        • Prizes and rewards will be distributed as per the specified structure after results are verified.<br>
+        • Any misuse of the platform, including offensive behavior or impersonation, will lead to account
+        suspension.<br>
+        • WinZone Arena is not responsible for server lag, disconnections, or other technical issues on the part of game
+        publishers or your personal network.<br>
+        • Your participation indicates that you are at least 13 years old or have parental consent, and you agree to
+        provide accurate and verifiable information.<br>
+        • You consent to receiving notifications related to your matches, payments, or platform updates via email or
+        phone.
+        <br><br>
+        By continuing, you acknowledge that you have read, understood, and agreed to these terms.
+      </p>
 
       <label><input type="checkbox" id="acceptTerms"> I accept the terms & conditions</label>
       <button onclick="confirmTerms()" id="btn-btn" class="bold p-3 bg-green-600">Accept & Continue</button>
-      <button onclick="closeTerms()" style="margin-top: 10px; background: transparent; color: #f66; border: none; text-decoration: underline;">Cancel</button>
+      <button onclick="closeTerms()"
+        style="margin-top: 10px; background: transparent; color: #f66; border: none; text-decoration: underline;">Cancel</button>
     </div>
   </div>
 
   <!-- Loading Animation Overlay -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-container">
-      <img src="https://img.pikbest.com/png-images/20190918/cartoon-snail-loading-loading-gif-animation_2734139.png!bw700"
-           alt="Loading..." class="loading-gif">
+      <img
+        src="https://img.pikbest.com/png-images/20190918/cartoon-snail-loading-loading-gif-animation_2734139.png!bw700"
+        alt="Loading..." class="loading-gif">
       <p class="loading-text">Processing...</p>
     </div>
   </div>
 
   <!-- OTP Verification Modal -->
-  <div id="otpModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 9999;">
-    <div style="background: rgba(20, 20, 20, 0.9); color: #0ff; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 0 20px #0ff2;">
+  <div id="otpModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 9999;">
+    <div
+      style="background: rgba(20, 20, 20, 0.9); color: #0ff; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 0 20px #0ff2;">
       <h2 style="margin-bottom: 20px; color: #0ff;">🔐 Verify Your Email</h2>
       <p style="margin-bottom: 20px; color: #fff;">We've sent a 5-digit OTP to your email. Please enter it below:</p>
-      <input type="text" id="otpInput" placeholder="Enter 5-digit OTP" maxlength="5" style="padding: 10px; background: #111; border: 1px solid #0ff; color: #0ff; border-radius: 5px; width: 100%; text-align: center; font-size: 1.2rem; margin-bottom: 20px;">
-      <button onclick="verifyOTP()" style="padding: 10px 20px; background: #0ff; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-right: 10px;">Verify OTP</button>
-      <button onclick="closeOTPModal()" style="padding: 10px 20px; background: transparent; color: #f66; border: 1px solid #f66; border-radius: 5px; cursor: pointer;">Cancel</button>
+      <input type="text" id="otpInput" placeholder="Enter 5-digit OTP" maxlength="5"
+        style="padding: 10px; background: #111; border: 1px solid #0ff; color: #0ff; border-radius: 5px; width: 100%; text-align: center; font-size: 1.2rem; margin-bottom: 20px;">
+      <button onclick="verifyOTP()"
+        style="padding: 10px 20px; background: #0ff; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-right: 10px;">Verify
+        OTP</button>
+      <button onclick="closeOTPModal()"
+        style="padding: 10px 20px; background: transparent; color: #f66; border: 1px solid #f66; border-radius: 5px; cursor: pointer;">Cancel</button>
       <p id="otpError" style="color: red; margin-top: 15px;"></p>
     </div>
   </div>
@@ -368,7 +426,7 @@
       showLoading('Creating your account...');
 
       try {
-        const res = await fetch("https://api.futurebound.tech/signup", {
+        const res = await fetch("https://ff-2026-backend-819593952150.us-central1.run.app/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(tempFormData)
@@ -399,7 +457,7 @@
       showLoading('Verifying OTP...');
 
       try {
-        const res = await fetch("https://api.futurebound.tech/verify-otp", {
+        const res = await fetch("https://ff-2026-backend-819593952150.us-central1.run.app/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -431,7 +489,7 @@
       const email = form.email.value;
       const password = form.password.value;
 
-      const res = await fetch("https://api.futurebound.tech/login", {
+      const res = await fetch("https://ff-2026-backend-819593952150.us-central1.run.app/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -454,4 +512,5 @@
   </script>
 
 </body>
+
 </html>

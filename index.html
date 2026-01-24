@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="config.js"></script>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -53,7 +55,7 @@
                     <h2>Available Tournaments</h2>
                     <p>Choose your battle and join the competition</p>
                 </div>
-                
+
                 <div id="tournaments-list" class="tournaments-list">
                     <!-- Tournaments will be loaded here -->
                 </div>
@@ -199,7 +201,8 @@
 
             <div class="modal-actions">
                 <button class="modal-btn cancel-btn" onclick="closeDepositModal()">Cancel</button>
-                <button class="modal-btn proceed-btn" id="proceedBtn" onclick="proceedToPayment()" disabled>Proceed to Pay</button>
+                <button class="modal-btn proceed-btn" id="proceedBtn" onclick="proceedToPayment()" disabled>Proceed to
+                    Pay</button>
             </div>
         </div>
     </div>
@@ -208,7 +211,7 @@
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-container">
             <img src="https://img.pikbest.com/png-images/20190918/cartoon-snail-loading-loading-gif-animation_2734139.png!bw700"
-                 alt="Loading..." class="loading-gif">
+                alt="Loading..." class="loading-gif">
         </div>
     </div>
 
@@ -254,32 +257,32 @@
             fetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_TOKEN), {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.json().then(data => {
-                        // Update user name in navbar
-                        const userName = localStorage.getItem('userName') || 'User';
-                        document.getElementById('userName').textContent = userName;
+                .then(response => {
+                    if (response.ok) {
+                        return response.json().then(data => {
+                            // Update user name in navbar
+                            const userName = localStorage.getItem('userName') || 'User';
+                            document.getElementById('userName').textContent = userName;
 
-                        // Load initial content (tournaments by default)
-                        loadTournamentsData();
-                    });
-                } else {
+                            // Load initial content (tournaments by default)
+                            loadTournamentsData();
+                        });
+                    } else {
+                        hideLoading();
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('userName');
+                        localStorage.removeItem('userEmail');
+                        window.location.href = 'landing.html';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Token verification failed:', error);
                     hideLoading();
                     localStorage.removeItem('token');
                     localStorage.removeItem('userName');
                     localStorage.removeItem('userEmail');
                     window.location.href = 'landing.html';
-                }
-            })
-            .catch((error) => {
-                console.error('Token verification failed:', error);
-                hideLoading();
-                localStorage.removeItem('token');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userEmail');
-                window.location.href = 'landing.html';
-            });
+                });
         });
 
         // Profile dropdown functionality
@@ -344,7 +347,7 @@
                 contentSection.classList.add('active');
 
                 // Load content for the section
-                switch(section) {
+                switch (section) {
                     case 'matches':
                         loadMyMatchesData();
                         break;
@@ -543,7 +546,7 @@
                                     <i class="fas fa-clock"></i>
                                     <div class="info-content">
                                         <span class="info-label">Start Time</span>
-                                        <span class="info-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                        <span class="info-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -695,7 +698,7 @@
         // Fetch tournament details
         async function fetchTournamentDetails(tournamentId) {
             try {
-                const response = await fetch('https://api.futurebound.tech/tournaments', {
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
 
@@ -960,7 +963,7 @@
                         <div class="match-info">
                             <div class="info-row">
                                 <i class="fas fa-calendar"></i>
-                                <span>${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                <span>${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                             <div class="info-row">
                                 <i class="fas fa-gamepad"></i>
@@ -1133,7 +1136,7 @@
         }
 
         function getTransactionIcon(type) {
-            switch(type) {
+            switch (type) {
                 case 'deposit': return 'credit-card';
                 case 'winning': return 'trophy';
                 case 'entry_fee': return 'minus-circle';
@@ -1143,7 +1146,7 @@
         }
 
         function getTransactionIconClass(type) {
-            switch(type) {
+            switch (type) {
                 case 'deposit': return 'deposit';
                 case 'winning': return 'winning';
                 case 'entry_fee': return 'entry-fee';
@@ -1383,7 +1386,7 @@
         .tournament-card {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             transition: transform 0.2s;
             margin-bottom: 20px;
@@ -1393,7 +1396,7 @@
 
         .tournament-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
 
         .card-banner {
@@ -1414,7 +1417,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.1));
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -1437,7 +1440,7 @@
         }
 
         .tournament-status {
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             color: #333;
             padding: 4px 8px;
             border-radius: 12px;
@@ -1565,7 +1568,8 @@
             transform: translateX(-50%);
         }
 
-        .prize-entry, .prize-win {
+        .prize-entry,
+        .prize-win {
             flex: 1;
             text-align: center;
             position: relative;
@@ -1665,8 +1669,15 @@
         }
 
         @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .registration-modal .modal-header {
@@ -1916,7 +1927,8 @@
                 padding: 8px 12px;
             }
 
-            .prize-entry, .prize-win {
+            .prize-entry,
+            .prize-win {
                 flex: 1;
             }
 
@@ -1992,9 +2004,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </body>
+
 </html>

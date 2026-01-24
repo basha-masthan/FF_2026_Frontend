@@ -1,7 +1,7 @@
 // API Configuration
 const API_CONFIG = {
-    BASE_URL: 'https://api.futurebound.tech',
-    // BASE_URL : 'http://localhost:3000',
+    // BASE_URL: 'https://api.futurebound.tech',
+    BASE_URL : 'https://ff-2026-backend-819593952150.us-central1.run.app/',
     ENDPOINTS: {
         // Authentication
         LOGIN: '/login',
@@ -31,6 +31,9 @@ const API_CONFIG = {
         ADMIN_TRANSACTIONS: '/admin/transactions',
         ADMIN_TOURNAMENT_REGISTRATIONS: (id) => `/admin/tournaments/${id}/registrations`,
         ADMIN_TOURNAMENT_STATS: (id) => `/admin/tournaments/${id}/stats`,
+        ADMIN_AWARD_WINNINGS: '/admin/award-winnings',
+        ADMIN_UPDATE_WINNING_AMOUNT: (registrationId) => `/admin/registrations/${registrationId}/winning-amount`,
+        ADMIN_UPDATE_ALL_WINNINGS: (tournamentId) => `/admin/tournaments/${tournamentId}/update-all-winnings`,
 
         // Other
         BANNERS: '/banners',

@@ -296,64 +296,19 @@
                 </div>
             </div>
 
-            <!-- Registrations Section -->
+            <!-- Registrations Section - New Expandable Card Design -->
             <div id="registrations-section" class="content-section">
                 <div class="registrations-management">
                     <div class="content-header">
                         <h2>Tournament Registrations</h2>
-                        <p>Select a tournament to view registered users</p>
+                        <p>View and manage player registrations by tournament</p>
                     </div>
 
-                    <!-- Tournament Selection -->
-                    <div class="tournament-selection-section">
-                        <h3>Select Tournament</h3>
-                        <div class="tournaments-grid" id="registrationTournamentsContainer">
-                            <div class="loading-state">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Loading tournaments...</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Registration Details -->
-                    <div id="registrationDetails" class="registration-details" style="display: none;">
-                        <div class="details-header">
-                            <button onclick="backToTournamentSelection()" class="back-btn">
-                                <i class="fas fa-arrow-left"></i>
-                                Back to Tournaments
-                            </button>
-                            <h3 id="selectedTournamentTitle">Tournament Registrations</h3>
-                        </div>
-
-                        <!-- Tournament Stats -->
-                        <div class="tournament-stats-card" id="registrationTournamentStats">
-                            <!-- Stats will be loaded here -->
-                        </div>
-
-                        <!-- Registrations Table -->
-                        <div class="data-table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Contact</th>
-                                        <th>Free Fire ID</th>
-                                        <th>Team</th>
-                                        <th>Balance</th>
-                                        <th>Registration Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="registrationUsersTableBody">
-                                    <tr>
-                                        <td colspan="6" class="loading-row">
-                                            <i class="fas fa-spinner fa-spin"></i>
-                                            Loading registrations...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <!-- Expandable Tournament Cards with Player Lists Inside -->
+                    <div class="expandable-tournament-cards" id="registrationTournamentsContainer">
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading tournaments with registrations...</p>
                         </div>
                     </div>
                 </div>
@@ -946,7 +901,7 @@
                             </div>
                             <div class="user-details">
                                 <span class="user-name">${registration.fullname}</span>
-                                <span class="user-email">${registration.email}</span>
+                                <span class="user-id">ID: ${registration._id}</span>
                             </div>
                         </div>
                     </td>
@@ -969,11 +924,15 @@
                         </div>
                     </td>
                     <td>
-                        <div class="balance-info">
-                            <div class="balance-amount">$${registration.totalBalance.toFixed(2)}</div>
-                            <div class="balance-breakdown">
-                                <span class="deposit">D: $${registration.depositAmount.toFixed(2)}</span>
-                                <span class="winning">W: $${registration.winningAmount.toFixed(2)}</span>
+                        <div class="winning-amount-info">
+                            <div class="winning-amount">$${(registration.tournamentWinningAmount || 0).toFixed(2)}</div>
+                            <div class="user-balance-info">
+                                <small>User Balance: $${(registration.winningAmount || 0).toFixed(2)}</small>
+                            </div>
+                            <div class="winning-actions">
+                                <button onclick="showUpdateWinningModal('${registration.registrationId}', ${registration.tournamentWinningAmount || 0})" class="update-winning-btn" title="Update Tournament Winning Amount">
+                                    <i class="fas fa-edit"></i> Update
+                                </button>
                             </div>
                         </div>
                     </td>
@@ -991,13 +950,26 @@
                             <button onclick="viewUserDetails('${registration._id}')" class="action-btn-small" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button onclick="contactUser('${registration.email}')" class="action-btn-small" title="Contact User">
-                                <i class="fas fa-envelope"></i>
-                            </button>
                         </div>
                     </td>
                 </tr>
             `).join('');
+
+            // Add bulk update button if tournament is completed
+            if (tournament.status === 'completed') {
+                const bulkUpdateRow = document.createElement('tr');
+                bulkUpdateRow.innerHTML = `
+                    <td colspan="9" class="bulk-actions-row">
+                        <div class="bulk-actions-container">
+                            <button onclick="showBulkUpdateModal('${tournament._id}')" class="bulk-update-btn">
+                                <i class="fas fa-users"></i> Update All Winning Amounts
+                            </button>
+                            <span class="bulk-info">Set the same winning amount for all ${registrations.length} players</span>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(bulkUpdateRow);
+            }
         }
 
         // Back to tournament selection
@@ -1022,6 +994,185 @@
                 localStorage.removeItem('adminToken');
                 localStorage.removeItem('adminUser');
                 window.location.href = 'admin-login.html';
+            }
+        }
+
+        // Show update tournament winning amount modal for individual player
+        function showUpdateWinningModal(registrationId, currentAmount) {
+            const modalHTML = `
+                <div id="updateWinningModal" class="update-winning-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <i class="fas fa-trophy"></i>
+                            <h2>Update Tournament Winning Amount</h2>
+                            <p>Set tournament-specific winning amount for this player</p>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="current-amount">
+                                <label>Current Tournament Winning Amount:</label>
+                                <span class="amount">$${currentAmount.toFixed(2)}</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newWinningAmount">New Tournament Winning Amount ($):</label>
+                                <input type="number" id="newWinningAmount" min="0" step="0.01"
+                                       placeholder="Enter amount" value="${currentAmount.toFixed(2)}">
+                                <small class="form-help">Set to 0 if player didn't win this tournament, or enter the prize amount for this specific tournament</small>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button class="modal-btn cancel-btn" onclick="closeUpdateWinningModal()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button class="modal-btn proceed-btn" onclick="updateWinningAmount('${registrationId}')">
+                                <i class="fas fa-save"></i> Update Tournament Amount
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.getElementById('newWinningAmount').focus();
+        }
+
+        // Close update winning modal
+        function closeUpdateWinningModal() {
+            const modal = document.getElementById('updateWinningModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Update tournament winning amount for individual player
+        async function updateWinningAmount(registrationId) {
+            const newAmount = parseFloat(document.getElementById('newWinningAmount').value);
+
+            if (isNaN(newAmount) || newAmount < 0) {
+                showNotification('Please enter a valid non-negative amount', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_UPDATE_WINNING_AMOUNT(registrationId)), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify({ winningAmount: newAmount })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`✅ Tournament winning: $${newAmount.toFixed(2)} | User balance updated to: $${result.userNewWinningBalance.toFixed(2)}`, 'success');
+
+                    // Refresh the registrations to show updated amounts
+                    const currentTournamentId = document.getElementById('selectedTournamentTitle').textContent.split(' - ')[0];
+                    viewTournamentRegistrations(currentTournamentId.split(': ')[1] || currentTournamentId);
+
+                    closeUpdateWinningModal();
+                } else {
+                    const errorData = await response.json();
+                    showNotification(errorData.message || 'Failed to update tournament winning amount', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating tournament winning amount:', error);
+                showNotification('Network error. Please try again.', 'error');
+            }
+        }
+
+        // Show bulk update modal for all players
+        function showBulkUpdateModal(tournamentId) {
+            const modalHTML = `
+                <div id="bulkUpdateModal" class="bulk-update-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <i class="fas fa-users"></i>
+                            <h2>Bulk Update Tournament Winning Amounts</h2>
+                            <p>Set the same tournament winning amount for all players in this tournament</p>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="bulkWinningAmount">Tournament Winning Amount for All Players ($):</label>
+                                <input type="number" id="bulkWinningAmount" min="0" step="0.01"
+                                       placeholder="Enter amount" value="0">
+                                <small class="form-help">
+                                    Set to 0 if no players won this tournament, or enter the standard prize amount for all players.
+                                    This will override individual tournament winning amounts.
+                                </small>
+                            </div>
+
+                            <div class="warning-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>This action will update the tournament winning amount for ALL registered players in this tournament.</span>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button class="modal-btn cancel-btn" onclick="closeBulkUpdateModal()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button class="modal-btn proceed-btn" onclick="bulkUpdateWinningAmounts('${tournamentId}')">
+                                <i class="fas fa-save"></i> Update All Players
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.getElementById('bulkWinningAmount').focus();
+        }
+
+        // Close bulk update modal
+        function closeBulkUpdateModal() {
+            const modal = document.getElementById('bulkUpdateModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Bulk update tournament winning amounts for all players
+        async function bulkUpdateWinningAmounts(tournamentId) {
+            const newAmount = parseFloat(document.getElementById('bulkWinningAmount').value);
+
+            if (isNaN(newAmount) || newAmount < 0) {
+                showNotification('Please enter a valid non-negative amount', 'error');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to set the tournament winning amount to $${newAmount.toFixed(2)} for ALL players in this tournament? This will also update their winning balances. This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_UPDATE_ALL_WINNINGS(tournamentId)), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify({ winningAmount: newAmount })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`✅ Updated ${result.totalPlayersUpdated} players: Tournament $${newAmount.toFixed(2)} | Total balance change: $${result.totalAmountChanged.toFixed(2)}`, 'success');
+
+                    // Refresh the registrations to show updated amounts
+                    viewTournamentRegistrations(tournamentId);
+                    closeBulkUpdateModal();
+                } else {
+                    const errorData = await response.json();
+                    showNotification(errorData.message || 'Failed to update tournament winning amounts', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating tournament winning amounts:', error);
+                showNotification('Network error. Please try again.', 'error');
             }
         }
     </script>
@@ -1371,6 +1522,587 @@
             .tournament-details {
                 flex-direction: column;
                 gap: 4px;
+            }
+        }
+    </style>
+
+    <!-- New CSS for winning amount update functionality -->
+    <style>
+        /* Winning amount column styles */
+        .winning-amount-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .winning-amount {
+            font-weight: 600;
+            color: #28a745;
+            font-size: 1rem;
+            background: #d4edda;
+            padding: 6px 12px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .winning-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .update-winning-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .update-winning-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .update-winning-btn i {
+            font-size: 0.8rem;
+        }
+
+        /* Bulk actions row */
+        .bulk-actions-row {
+            background: #f8f9fa;
+            padding: 15px;
+        }
+
+        .bulk-actions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .bulk-update-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);
+        }
+
+        .bulk-update-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
+        }
+
+        .bulk-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Update Winning Modal Styles */
+        .update-winning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .update-winning-modal .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            max-width: 450px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .update-winning-modal .modal-header {
+            text-align: center;
+            padding: 24px 32px 16px;
+            border-bottom: 1px solid #e1e5e9;
+            background: linear-gradient(135deg, #667eea 10%, #764ba2 90%);
+            color: white;
+        }
+
+        .update-winning-modal .modal-header i {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .update-winning-modal .modal-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .update-winning-modal .modal-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .update-winning-modal .modal-body {
+            padding: 24px 32px;
+        }
+
+        .current-amount {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .current-amount label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .current-amount .amount {
+            font-weight: 700;
+            color: #28a745;
+            font-size: 1.1rem;
+        }
+
+        .update-winning-modal .form-group {
+            margin-bottom: 20px;
+        }
+
+        .update-winning-modal label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .update-winning-modal input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .update-winning-modal input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-help {
+            display: block;
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .update-winning-modal .modal-actions {
+            padding: 20px 32px;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background: #f8f9fa;
+            border-radius: 0 0 16px 16px;
+        }
+
+        /* Bulk Update Modal Styles */
+        .bulk-update-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .bulk-update-modal .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .bulk-update-modal .modal-header {
+            text-align: center;
+            padding: 24px 32px 16px;
+            border-bottom: 1px solid #e1e5e9;
+            background: linear-gradient(135deg, #f093fb 10%, #f5576c 90%);
+            color: white;
+        }
+
+        .bulk-update-modal .warning-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .bulk-update-modal .warning-message i {
+            font-size: 1.1rem;
+        }
+
+        /* Mobile responsive for modals */
+        @media (max-width: 768px) {
+            .update-winning-modal .modal-content,
+            .bulk-update-modal .modal-content {
+                margin: 20px;
+                max-height: calc(100vh - 40px);
+            }
+
+            .update-winning-modal .modal-actions,
+            .bulk-update-modal .modal-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .modal-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .winning-actions {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .update-winning-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .bulk-actions-container {
+                align-items: center;
+                text-align: center;
+            }
+
+            .bulk-update-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <!-- Enhanced CSS for tournament registrations with better visual hierarchy -->
+    <style>
+        /* Enhanced Data Table Styles with Visual Hierarchy */
+        .data-table-container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e1e5e9;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .data-table th {
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th:first-child {
+            border-top-left-radius: 16px;
+        }
+
+        .data-table th:last-child {
+            border-top-right-radius: 16px;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #f1f3f5;
+            transition: all 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .data-table td {
+            padding: 14px 12px;
+            vertical-align: middle;
+        }
+
+        /* Enhanced Winning Amount Display with Visual Hierarchy */
+        .winning-amount-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+
+        .winning-amount {
+            font-weight: 700;
+            color: #28a745;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            padding: 8px 14px;
+            border-radius: 10px;
+            width: fit-content;
+            box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+            position: relative;
+        }
+
+        .winning-amount:before {
+            content: '🏆';
+            position: absolute;
+            left: -18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+        }
+
+        .user-balance-info {
+            font-size: 0.8rem;
+            color: #495057;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border-left: 2px solid #667eea;
+        }
+
+        .winning-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .update-winning-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .update-winning-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .update-winning-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* Bulk Actions with Enhanced Visual Hierarchy */
+        .bulk-actions-row {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e9ecef 100%);
+            padding: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .bulk-actions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .bulk-update-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 3px 10px rgba(240, 147, 251, 0.3);
+        }
+
+        .bulk-update-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(240, 147, 251, 0.4);
+        }
+
+        .bulk-info {
+            font-size: 0.9rem;
+            color: #495057;
+            font-style: italic;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 3px solid #f093fb;
+        }
+
+        /* Status Badges with Visual Hierarchy */
+        .status-active {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-cancelled {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* User Info with Better Visual Hierarchy */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .user-id {
+            font-size: 0.75rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Team Info with Visual Enhancement */
+        .team-badge {
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-team_a {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .team-team_b {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        /* Hover Effects for Better UX */
+        .data-table tbody tr:hover .user-avatar {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .data-table {
+                font-size: 0.8rem;
+            }
+
+            .data-table th, .data-table td {
+                padding: 10px 8px;
+                white-space: nowrap;
+            }
+
+            .winning-amount:before {
+                left: -14px;
+                font-size: 0.7rem;
             }
         }
     </style>
