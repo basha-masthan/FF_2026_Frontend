@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/index.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="config.js"></script>
+    <script src="api-service.js"></script>
 </head>
 
 <body>
@@ -62,7 +63,7 @@
             </div>
             <div class="hero-image animate-fade-in-right">
                 <div class="game-preview animate-pulse">
-                    <img src="https://ff-2026-backend-819593952150.us-central1.run.app/img/ff1.jpg" alt="Free Fire Tournament" class="preview-image">
+                    <img id="heroImage" alt="Free Fire Tournament" class="preview-image">
                     <div class="preview-overlay">
                         <i class="fas fa-gamepad"></i>
                         <span>Live Tournaments</span>
@@ -143,7 +144,7 @@
             <div class="tournament-grid">
                 <div class="tournament-type-card">
                     <div class="type-image">
-                        <img src="https://ff-2026-backend-819593952150.us-central1.run.app/img/ff-duo.jpg" alt="Clash Squad Duo">
+                        <img id="duoImage" alt="Clash Squad Duo">
                     </div>
                     <div class="type-content">
                         <h3>Clash Squad Duo</h3>
@@ -155,7 +156,7 @@
 
                 <div class="tournament-type-card">
                     <div class="type-image">
-                        <img src="https://ff-2026-backend-819593952150.us-central1.run.app/img/ff-squard.webp" alt="Clash Squad Squad">
+                        <img id="squadImage" alt="Clash Squad Squad">
                     </div>
                     <div class="type-content">
                         <h3>Clash Squad Squad</h3>
@@ -167,7 +168,7 @@
 
                 <div class="tournament-type-card">
                     <div class="type-image">
-                        <img src="https://ff-2026-backend-819593952150.us-central1.run.app/img/ff-lone_wolf.jpg" alt="Lone Wolf">
+                        <img id="loneWolfImage" alt="Lone Wolf">
                     </div>
                     <div class="type-content">
                         <h3>Lone Wolf</h3>
@@ -237,6 +238,12 @@
     <script>
         // Load stats and tournaments on page load
         window.addEventListener('DOMContentLoaded', () => {
+            // Set image sources dynamically based on config
+            document.getElementById('heroImage').src = buildImgUrl('/img/ff1.jpg');
+            document.getElementById('duoImage').src = buildImgUrl('/img/ff-duo.jpg');
+            document.getElementById('squadImage').src = buildImgUrl('/img/ff-squard.webp');
+            document.getElementById('loneWolfImage').src = buildImgUrl('/img/ff-lone_wolf.jpg');
+
             loadStats();
             loadActiveTournaments();
         });
@@ -268,21 +275,15 @@
 
         async function loadStats() {
             try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.STATS));
-                let tournaments = 10, players = 20, prize = 100;
-
-                if (response.ok) {
-                    const stats = await response.json();
-                    tournaments = stats.totalTournaments || 0;
-                    players = Math.max(stats.totalPlayers || 0, 20);
-                    prize = Math.max(stats.totalPrizePool || 0, 100);
-                }
+                const stats = await ApiService.tournaments.getStats();
+                const tournaments = stats.totalTournaments || 10;
+                const players = Math.max(stats.totalPlayers || 0, 20);
+                const prize = Math.max(stats.totalPrizePool || 0, 100);
 
                 // Animate the numbers
                 animateNumber(document.getElementById('totalTournaments'), tournaments);
                 animateNumber(document.getElementById('totalPlayers'), players);
                 animateNumber(document.getElementById('totalPrize'), prize, 2000, true);
-
             } catch (error) {
                 console.error('Error loading stats:', error);
                 // Fallback values with animation
@@ -302,13 +303,7 @@
 
         async function loadActiveTournaments() {
             try {
-                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS));
-                let tournaments = [];
-
-                if (response.ok) {
-                    const data = await response.json();
-                    tournaments = data.tournaments || [];
-                }
+                const tournaments = await ApiService.tournaments.getAll();
 
                 // Ensure at least 5 tournaments by adding dummy ones if needed
                 const dummyTournaments = [
@@ -320,7 +315,7 @@
                 ];
 
                 // Combine backend tournaments with dummies, ensuring at least 5
-                const allTournaments = [...tournaments, ...dummyTournaments].slice(0, 5);
+                const allTournaments = [...(tournaments.tournaments || tournaments || []), ...dummyTournaments].slice(0, 5);
 
                 const container = document.getElementById('activeTournaments');
                 container.innerHTML = allTournaments.map((tournament, index) => `
@@ -389,6 +384,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -400,6 +396,7 @@
                 opacity: 0;
                 transform: translateX(-30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -411,6 +408,7 @@
                 opacity: 0;
                 transform: translateX(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -418,9 +416,17 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .animate-fade-in-up {

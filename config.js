@@ -1,7 +1,19 @@
+// ============================================
+// 🔧 EASY MODE SWITCH - Change this to switch between dev and production
+// ============================================
+const DEV_MODE = false; // Set to true for localhost:5050, false for production
+
 // API Configuration
 const API_CONFIG = {
-    // BASE_URL: 'https://api.futurebound.tech',
-    BASE_URL : 'https://ff-2026-backend-819593952150.us-central1.run.app/',
+    BASE_URL: DEV_MODE
+        ? 'http://localhost:5050'
+        : 'https://ff-2026-backend-819593952150.us-central1.run.app',
+
+    // Image base URL (for static assets)
+    IMG_BASE_URL: DEV_MODE
+        ? 'http://localhost:5050'
+        : 'https://ff-2026-backend-819593952150.us-central1.run.app',
+
     ENDPOINTS: {
         // Authentication
         LOGIN: '/login',
@@ -44,7 +56,7 @@ const API_CONFIG = {
     }
 };
 
-// Helper function to build full URLs
+// Helper function to build full API URLs
 function buildApiUrl(endpoint, params = {}) {
     let url = API_CONFIG.BASE_URL + endpoint;
 
@@ -56,6 +68,15 @@ function buildApiUrl(endpoint, params = {}) {
     return url;
 }
 
+// Helper function to build image URLs
+function buildImgUrl(imagePath) {
+    // Remove leading slash if present
+    const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+    return API_CONFIG.IMG_BASE_URL + cleanPath;
+}
+
 // Export for use in other files
 window.API_CONFIG = API_CONFIG;
 window.buildApiUrl = buildApiUrl;
+window.buildImgUrl = buildImgUrl;
+window.DEV_MODE = DEV_MODE;

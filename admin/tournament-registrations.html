@@ -7,6 +7,8 @@
     <title>Tournament Registrations - Admin Dashboard</title>
     <link rel="stylesheet" href="../css/admin-dashboard.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="../config.js"></script>
+    <script src="../api-service.js"></script>
 </head>
 
 <body>
@@ -40,6 +42,10 @@
                 <a href="#" class="nav-item active" data-section="registrations">
                     <i class="fas fa-clipboard-list"></i>
                     <span>Registrations</span>
+                </a>
+                <a href="chat-support.html" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat Support</span>
                 </a>
                 <a href="#" class="nav-item" data-section="settings">
                     <i class="fas fa-cog"></i>
@@ -139,6 +145,10 @@
                                 <button onclick="searchRegistrations()" class="search-btn">
                                     <i class="fas fa-search"></i>
                                 </button>
+                                <button onclick="openRoomDetailsModal()" class="action-btn secondary"
+                                    style="margin-right: 10px;">
+                                    <i class="fas fa-key"></i> Room
+                                </button>
                                 <button onclick="exportRegistrations()" class="export-btn">
                                     <i class="fas fa-download"></i>
                                     Export
@@ -158,7 +168,8 @@
                                     <tr>
                                         <th>User</th>
                                         <th>Contact</th>
-                                        <th>Balance</th>
+                                        <th>Free Fire ID</th>
+                                        <th>Winnings</th>
                                         <th>Registration Time</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -185,40 +196,34 @@
         let allRegistrations = [];
 
         // Check admin authentication
-        window.addEventListener('DOMContentLoaded', () => {
-            const adminToken = localStorage.getItem('adminToken');
-            console.log('Admin token:', adminToken ? 'Present' : 'Missing');
-            if (!adminToken) {
+        // Check admin authentication
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!ApiService.isAdminAuthenticated()) {
                 console.log('No admin token found, redirecting to login');
                 window.location.href = 'admin-login.html';
                 return;
             }
 
             // Verify admin token
-            fetch('https://ff-2026-backend-819593952150.us-central1.run.app/admin/verify-token', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            })
-                .then(response => {
-                    console.log('Token verification response:', response.status);
-                    if (response.ok) {
-                        return response.json().then(data => {
-                            console.log('Token verified successfully');
-                            loadTournaments();
-                            updateTime();
-                        });
-                    } else {
-                        console.log('Token verification failed');
-                        localStorage.removeItem('adminToken');
-                        localStorage.removeItem('adminUser');
-                        window.location.href = 'admin-login.html';
-                    }
-                })
-                .catch((error) => {
-                    console.error('Admin authentication failed:', error);
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('adminUser');
-                    window.location.href = 'admin-login.html';
-                });
+            try {
+                await ApiService.admin.verifyToken();
+                console.log('Token verified successfully');
+
+                // key fix: check for URL params
+                const urlParams = new URLSearchParams(window.location.search);
+                const tournamentIdParam = urlParams.get('tournamentId');
+
+                if (tournamentIdParam) {
+                    await loadRegistrationsByIdInternal(tournamentIdParam);
+                } else {
+                    loadTournaments();
+                }
+
+                updateTime();
+            } catch (error) {
+                console.error('Admin authentication failed:', error);
+                ApiService.adminLogout();
+            }
         });
 
         // Navigation
@@ -243,22 +248,50 @@
         });
 
         function showSection(section) {
-            // Update navigation
-            navItems.forEach(nav => nav.classList.remove('active'));
-            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+            // Map logical section names to HTML IDs
+            const sectionMap = {
+                'registrations': 'registrations-view',
+                'tournament-selection': 'tournament-selection'
+            };
 
-            // Update content
-            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById(section + '-section').classList.add('active');
+            const targetId = sectionMap[section] || section + '-section';
+            const targetEl = document.getElementById(targetId);
+
+            // Update content visibility if element exists
+            if (targetEl) {
+                document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+                targetEl.classList.add('active');
+            } else if (document.getElementById(section)) {
+                // Fallback: try ID exactly as passed
+                document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+            }
+
+            // Update navigation highlighting
+            // specific views like 'tournament-selection' should still highlight 'registrations'
+            let navTarget = section;
+            if (section === 'tournament-selection' || section === 'registrations-view') {
+                navTarget = 'registrations';
+            }
+
+            navItems.forEach(nav => nav.classList.remove('active'));
+            const navEl = document.querySelector(`[data-section="${navTarget}"]`);
+            if (navEl) {
+                navEl.classList.add('active');
+            }
 
             // Update page title
             const titles = {
                 'users': 'User Management',
                 'tournaments': 'Tournament Management',
                 'registrations': 'Tournament Registrations',
-                'settings': 'System Settings'
+                'settings': 'System Settings',
+                'tournament-selection': 'Select Tournament'
             };
-            document.getElementById('pageTitle').textContent = titles[section] || 'Tournament Registrations';
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle) {
+                pageTitle.textContent = titles[section] || 'Tournament Registrations';
+            }
         }
 
         // Mobile menu toggle
@@ -289,20 +322,9 @@
         async function loadTournaments() {
             console.log('Loading tournaments...');
             try {
-                const response = await fetch('https://ff-2026-backend-819593952150.us-central1.run.app/admin/tournaments', {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-                });
-
-                console.log('Tournaments response status:', response.status);
-                if (response.ok) {
-                    const tournaments = await response.json();
-                    console.log('Loaded tournaments:', tournaments);
-                    displayTournamentSelection(tournaments);
-                } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error('Failed to load tournaments:', errorData);
-                    showError(`Failed to load tournaments: ${errorData.message || response.status}`);
-                }
+                const tournaments = await ApiService.admin.getTournaments();
+                console.log('Loaded tournaments:', tournaments);
+                displayTournamentSelection(tournaments);
             } catch (error) {
                 console.error('Error loading tournaments:', error);
                 showError('Error loading tournaments: ' + error.message);
@@ -403,22 +425,11 @@
             currentTournamentId = tournamentId;
 
             try {
-                const response = await fetch(`https://ff-2026-backend-819593952150.us-central1.run.app/admin/tournaments/${encodeURIComponent(tournamentId)}/registrations`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-                });
-
-                console.log('Response status:', response.status);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Received data:', data);
-                    displayTournamentStats(data.tournament, data.pagination);
-                    displayRegistrations(data.registrations);
-                    showSection('registrations');
-                } else {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error('Failed response:', errorData);
-                    showNotification(`Failed to load registrations: ${errorData.message || response.status}`, 'error');
-                }
+                const data = await ApiService.admin.getTournamentRegistrations(tournamentId);
+                console.log('Received data:', data);
+                displayTournamentStats(data.tournament, data.pagination);
+                displayRegistrations(data.registrations);
+                showSection('registrations');
             } catch (error) {
                 console.error('Error loading registrations:', error);
                 showNotification('Error loading registrations: ' + error.message, 'error');
@@ -485,7 +496,7 @@
             allRegistrations = registrations;
 
             if (registrations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6">No registrations found for this tournament</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7">No registrations found for this tournament</td></tr>';
                 return;
             }
 
@@ -505,17 +516,21 @@
                     <td>
                         <div class="contact-info">
                             ${registration.mobile ? `<div><i class="fas fa-phone"></i> ${registration.mobile}</div>` : ''}
-                            ${registration.age ? `<div><i class="fas fa-birthday-cake"></i> ${registration.age} years</div>` : ''}
                             ${registration.state ? `<div><i class="fas fa-map-marker-alt"></i> ${registration.state}</div>` : ''}
                         </div>
                     </td>
                     <td>
-                        <div class="balance-info">
-                            <div class="balance-amount">$${registration.totalBalance.toFixed(2)}</div>
-                            <div class="balance-breakdown">
-                                <span class="deposit">D: $${registration.depositAmount.toFixed(2)}</span>
-                                <span class="winning">W: $${registration.winningAmount.toFixed(2)}</span>
-                            </div>
+                        <div class="ff-id-info">
+                            <span class="ff-id">${registration.freeFireId || 'N/A'}</span>
+                            ${registration.teamSelection ? `<br><span class="team-badge">${registration.teamSelection.replace('_', ' ').toUpperCase()}</span>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="winning-amount-info">
+                            <div class="winning-amount">$${(registration.tournamentWinningAmount || 0).toFixed(2)}</div>
+                            <button onclick="showUpdateWinningModal('${registration.registrationId}', ${registration.tournamentWinningAmount || 0})" class="action-btn-small" title="Update Winnings">
+                                <i class="fas fa-edit"></i>
+                            </button>
                         </div>
                     </td>
                     <td>
@@ -539,6 +554,21 @@
                     </td>
                 </tr>
             `).join('');
+
+            // Add bulk update row if likely completed (checking first reg for now, ideally check tournament status)
+            // Since we don't have tournament status in this scope easily without passing it, we can infer or add it to displayRegistrations args.
+            // But let's add the Bulk Update button to the header area instead or at the bottom.
+            // Actually, best to add it to the table footer if possible.
+            const bulkRow = document.createElement('tr');
+            bulkRow.innerHTML = `
+                <td colspan="7" class="bulk-actions-row">
+                     <button onclick="showBulkUpdateModal('${currentTournamentId}')" class="bulk-update-btn">
+                        <i class="fas fa-users"></i> Update All Winning Amounts
+                    </button>
+                    <span class="bulk-info"> Set the same amounts for all players</span>
+                </td>
+            `;
+            tbody.appendChild(bulkRow);
         }
 
         // Search registrations
@@ -569,7 +599,7 @@
         // View tournament statistics
         async function viewTournamentStats(tournamentId) {
             try {
-                const response = await fetch(`https://ff-2026-backend-819593952150.us-central1.run.app/admin/tournaments/${tournamentId}/stats`, {
+                const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_TOURNAMENT_STATS(tournamentId)), {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
                 });
 
@@ -724,9 +754,230 @@
         // Admin logout
         function adminLogout() {
             if (confirm('Are you sure you want to logout from admin panel?')) {
-                localStorage.removeItem('adminToken');
-                localStorage.removeItem('adminUser');
-                window.location.href = 'admin-login.html';
+                ApiService.adminLogout();
+            }
+        }
+        // Room Details Management
+        async function openRoomDetailsModal() {
+            // Fetch current tournament details first to pre-fill
+            if (!currentTournamentId) return;
+
+            try {
+                // We're already viewing it, so we can likely get data from ApiService or just making a new call
+                // Ideally we should cache the tournament object, but fetching fresh is safe
+                const data = await ApiService.admin.getTournamentRegistrations(currentTournamentId);
+                const t = data.tournament;
+
+                // Remove existing modal if any
+                const existing = document.getElementById('roomDetailsModal');
+                if (existing) existing.remove();
+
+                const modalHTML = `
+                    <div id="roomDetailsModal" class="modal-overlay" style="display: flex;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2>Update Room Details</h2>
+                                <button onclick="closeRoomDetailsModal()" class="close-btn"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="room_id">Room ID</label>
+                                    <input type="text" id="room_id" class="search-input" style="width: 100%" value="${t.roomId || ''}">
+                                </div>
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label for="room_password">Room Password</label>
+                                    <input type="text" id="room_password" class="search-input" style="width: 100%" value="${t.roomPassword || ''}">
+                                </div>
+                                 <div class="form-group" style="margin-top: 15px;">
+                                    <label for="room_custom_url">Custom Lobby URL (Optional)</label>
+                                    <input type="text" id="room_custom_url" class="search-input" style="width: 100%" value="${t.customUrl || ''}" placeholder="https://...">
+                                </div>
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label for="room_notes">Notes (Optional)</label>
+                                    <textarea id="room_notes" class="search-input" style="width: 100%; min-height: 80px;">${t.roomNotes || ''}</textarea>
+                                </div>
+                                <div class="modal-actions" style="margin-top: 20px; text-align: right;">
+                                    <button class="action-btn secondary" onclick="closeRoomDetailsModal()">Cancel</button>
+                                    <button class="action-btn primary" onclick="saveRoomDetails()">Save Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            } catch (error) {
+                console.error('Error opening room modal:', error);
+                showNotification('Failed to load tournament details', 'error');
+            }
+        }
+
+        function closeRoomDetailsModal() {
+            const modal = document.getElementById('roomDetailsModal');
+            if (modal) modal.remove();
+        }
+
+        async function saveRoomDetails() {
+            if (!currentTournamentId) return;
+
+            const roomId = document.getElementById('room_id').value.trim();
+            const password = document.getElementById('room_password').value.trim();
+            const customUrl = document.getElementById('room_custom_url').value.trim();
+            const notes = document.getElementById('room_notes').value.trim();
+
+            if (!roomId || !password) {
+                showNotification('Room ID and Password are required', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_CONFIG.BASE_URL}/admin/tournaments/${currentTournamentId}/room-details`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify({
+                        roomId: roomId,
+                        roomPassword: password,
+                        customUrl: customUrl,
+                        roomNotes: notes
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification('Room details updated successfully', 'success');
+                    closeRoomDetailsModal();
+                } else {
+                    // Check if response is HTML (common for 404/500 from Express)
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") === -1) {
+                        console.error('Server returned non-JSON response:', await response.text());
+                        showNotification('Server endpoint not found. Please RESTART your backend server.', 'error');
+                        return;
+                    }
+
+                    const err = await response.json();
+                    showNotification(err.message || 'Failed to update room details', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating room:', error);
+                showNotification('Connection error. Is backend running?', 'error');
+            }
+        }
+        // Show update tournament winning amount modal for individual player
+        function showUpdateWinningModal(registrationId, currentAmount) {
+            const modalHTML = `
+                <div id="updateWinningModal" class="modal-overlay">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Update Tournament Winning Amount</h2>
+                            <button onclick="closeUpdateWinningModal()" class="close-btn"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Current Amount: <strong>$${currentAmount.toFixed(2)}</strong></label>
+                            </div>
+                            <div class="form-group">
+                                <label for="newWinningAmount">New Amount ($):</label>
+                                <input type="number" id="newWinningAmount" min="0" step="0.01"
+                                       class="search-input" style="width: 100%; margin-top: 5px;"
+                                       value="${currentAmount.toFixed(2)}">
+                            </div>
+                            <div class="modal-actions" style="margin-top: 20px; text-align: right;">
+                                <button class="action-btn secondary" onclick="closeUpdateWinningModal()">Cancel</button>
+                                <button class="action-btn primary" onclick="updateWinningAmount('${registrationId}')">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.getElementById('newWinningAmount').focus();
+        }
+
+        function closeUpdateWinningModal() {
+            const modal = document.getElementById('updateWinningModal');
+            if (modal) modal.remove();
+        }
+
+        async function updateWinningAmount(registrationId) {
+            const newAmount = parseFloat(document.getElementById('newWinningAmount').value);
+            if (isNaN(newAmount) || newAmount < 0) {
+                showNotification('Please enter a valid amount', 'error');
+                return;
+            }
+
+            try {
+                const result = await ApiService.admin.updateWinningAmount(registrationId, newAmount);
+                console.log('Update Result:', result);
+                if (result.transaction) {
+                    console.log('Transaction Created:', result.transaction);
+                } else {
+                    console.warn('No transaction returned from server');
+                }
+
+                showNotification(`Updated! Balance changed: $${(result.userNewWinningBalance - (result.userCurrentWinningBalance || 0)).toFixed(2)}`, 'success');
+                closeUpdateWinningModal();
+                loadRegistrationsByIdInternal(currentTournamentId);
+            } catch (error) {
+                console.error('Error updating:', error);
+                showNotification(error.message || 'Failed to update', 'error');
+            }
+        }
+
+        // Bulk Update Logic
+        function showBulkUpdateModal(tournamentId) {
+            const modalHTML = `
+                <div id="bulkUpdateModal" class="modal-overlay">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Bulk Update All Winnings</h2>
+                            <button onclick="closeBulkUpdateModal()" class="close-btn"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="warning-text" style="color: #d9534f; margin-bottom: 15px;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                This will set the winning amount for <strong>EVERY</strong> player in this tournament.
+                            </p>
+                            <div class="form-group">
+                                <label for="bulkAmount">Winning Amount for All ($):</label>
+                                <input type="number" id="bulkAmount" min="0" step="0.01"
+                                       class="search-input" style="width: 100%; margin-top: 5px;"
+                                       value="0">
+                            </div>
+                            <div class="modal-actions" style="margin-top: 20px; text-align: right;">
+                                <button class="action-btn secondary" onclick="closeBulkUpdateModal()">Cancel</button>
+                                <button class="action-btn primary" onclick="bulkUpdateWinningAmounts('${tournamentId}')">Update All</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeBulkUpdateModal() {
+            const modal = document.getElementById('bulkUpdateModal');
+            if (modal) modal.remove();
+        }
+
+        async function bulkUpdateWinningAmounts(tournamentId) {
+            const amount = parseFloat(document.getElementById('bulkAmount').value);
+            if (isNaN(amount) || amount < 0) {
+                showNotification('Invalid amount', 'error');
+                return;
+            }
+
+            if (!confirm(`Are you sure? This updates ALL players to $${amount}.`)) return;
+
+            try {
+                const result = await ApiService.admin.updateAllWinnings(tournamentId, amount);
+                showNotification(`Updated ${result.totalPlayersUpdated} players. Total change: $${result.totalAmountChanged.toFixed(2)}`, 'success');
+                closeBulkUpdateModal();
+                loadRegistrationsByIdInternal(tournamentId);
+            } catch (error) {
+                showNotification(error.message || 'Failed to bulk update', 'error');
             }
         }
     </script>

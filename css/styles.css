@@ -1,0 +1,85 @@
+
+/* Room Details Styles */
+.room-credentials {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.room-code, .room-password {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.room-info .label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.room-info .value {
+    font-family: monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    background: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.copy-btn {
+    cursor: pointer;
+    color: #667eea;
+    transition: color 0.2s;
+}
+
+.copy-btn:hover {
+    color: #5568d3;
+}
+
+.room-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    transition: background 0.2s;
+}
+
+.room-link-btn:hover {
+    background: #218838;
+}
+
+.room-notes {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    align-items: flex-start;
+}
+
+.room-notes i {
+    margin-top: 3px;
+}
+
+.select-all {
+    user-select: all;
+}
+

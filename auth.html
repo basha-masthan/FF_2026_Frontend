@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Game Portal - Login/Signup</title>
+  <script src="config.js"></script>
+  <script src="api-service.js"></script>
   <style>
     html,
     body {
@@ -426,24 +428,12 @@
       showLoading('Creating your account...');
 
       try {
-        const res = await fetch("https://ff-2026-backend-819593952150.us-central1.run.app/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(tempFormData)
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          hideLoading();
-          showOTPModal();
-        } else {
-          const data = await res.json();
-          hideLoading();
-          document.getElementById("signup-error").textContent = data.message || "Something went wrong";
-        }
+        await ApiService.auth.signup(tempFormData.fullname, tempFormData.email, tempFormData.password);
+        hideLoading();
+        showOTPModal();
       } catch (error) {
         hideLoading();
-        document.getElementById("signup-error").textContent = "Network error. Please try again.";
+        document.getElementById("signup-error").textContent = error.message || "Something went wrong";
       }
     }
 
@@ -457,29 +447,14 @@
       showLoading('Verifying OTP...');
 
       try {
-        const res = await fetch("https://ff-2026-backend-819593952150.us-central1.run.app/verify-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: tempFormData.email,
-            otp: otp
-          })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          hideLoading();
-          alert('Account created successfully! Welcome to Winzone Arena!');
-          closeOTPModal();
-          window.location.href = 'index.html';
-        } else {
-          const data = await res.json();
-          hideLoading();
-          document.getElementById('otpError').textContent = data.message || 'Invalid OTP. Please try again.';
-        }
+        await ApiService.auth.verifyOtp(tempFormData.email, otp);
+        hideLoading();
+        alert('Account created successfully! Welcome to Winzone Arena!');
+        closeOTPModal();
+        window.location.href = 'index.html';
       } catch (error) {
         hideLoading();
-        document.getElementById('otpError').textContent = 'Network error. Please try again.';
+        document.getElementById('otpError').textContent = error.message || 'Invalid OTP. Please try again.';
       }
     }
 
@@ -489,21 +464,11 @@
       const email = form.email.value;
       const password = form.password.value;
 
-      const res = await fetch("https://ff-2026-backend-819593952150.us-central1.run.app/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userName', data.user.fullname.split(' ')[0]);
-        localStorage.setItem('userEmail', data.user.email);
+      try {
+        await ApiService.auth.login(email, password);
         window.location.href = "index.html";
-      } else {
-        const data = await res.json();
-        document.getElementById("login-error").textContent = data.message || "Invalid credentials";
+      } catch (error) {
+        document.getElementById("login-error").textContent = error.message || "Invalid credentials";
       }
     });
 

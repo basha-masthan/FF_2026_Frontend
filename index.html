@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="config.js"></script>
+    <script src="api-service.js"></script>
 </head>
 
 <body>
@@ -99,7 +100,7 @@
                         <i class="fas fa-plus"></i>
                         Deposit
                     </button>
-                    <button class="action-btn withdraw-btn" disabled>
+                    <button id="withdrawBtn" class="action-btn withdraw-btn" onclick="openWithdrawModal()" disabled>
                         <i class="fas fa-minus"></i>
                         Withdraw
                     </button>
@@ -207,6 +208,46 @@
         </div>
     </div>
 
+    <!-- Withdrawal Modal -->
+    <div id="withdrawModal" class="deposit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-money-bill-wave"></i>
+                <h2>Withdraw Money</h2>
+                <p>Request withdrawal from your winning balance</p>
+            </div>
+
+            <div class="withdrawal-info">
+                <div class="info-item">
+                    <span>Available Balance:</span>
+                    <span class="highlight" id="availableWithdrawBalance">$0.00</span>
+                </div>
+                <div class="info-item">
+                    <span>Minimum Withdrawal:</span>
+                    <span class="highlight">$20.00</span>
+                </div>
+            </div>
+
+            <div class="custom-amount">
+                <label for="withdrawAmount">Withdrawal Amount</label>
+                <input type="number" id="withdrawAmount" min="20" step="0.01" placeholder="Enter amount (min $20)">
+            </div>
+
+            <div class="custom-amount">
+                <label for="upiId">UPI ID</label>
+                <input type="text" id="upiId" placeholder="yourname@upi" required>
+                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">Enter your UPI ID for
+                    receiving payment</small>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
+                <button class="modal-btn proceed-btn" id="submitWithdrawBtn" onclick="submitWithdrawal()">Submit
+                    Request</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Animation Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-container">
@@ -243,53 +284,24 @@
             document.getElementById('loadingOverlay').classList.remove('active');
         }
 
-        // Authenticated fetch helper
-        async function authenticatedFetch(url, options = {}) {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'landing.html';
-                return;
-            }
 
-            const authHeaders = {
-                'Authorization': `Bearer ${token}`,
-                ...options.headers
-            };
-
-            const authOptions = {
-                ...options,
-                headers: authHeaders
-            };
-
-            const response = await fetch(url, authOptions);
-
-            if (response.status === 401) {
-                // Token expired or invalid
-                localStorage.removeItem('token');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userEmail');
-                window.location.href = 'landing.html';
-                return;
-            }
-
-            return response;
-        }
 
         // Check authentication
         window.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
+            if (!ApiService.isAuthenticated()) {
                 window.location.href = 'landing.html';
                 return;
             }
 
-            // Assume user is logged in if token exists
             // Update user name in navbar
             const userName = localStorage.getItem('userName') || 'User';
             document.getElementById('userName').textContent = userName;
 
             // Load initial content (tournaments by default)
             loadTournamentsData();
+
+            // Load wallet/profile data to update header and balance
+            loadWalletData();
         });
 
         // Profile dropdown functionality
@@ -326,10 +338,7 @@
         // Logout functionality
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userEmail');
-                window.location.href = 'landing.html';
+                ApiService.logout();
             }
         }
 
@@ -377,32 +386,31 @@
                 showLoading();
 
                 // Load stats
-                const statsResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.STATS));
-
-                if (statsResponse && statsResponse.ok) {
-                    const contentType = statsResponse.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        const stats = await statsResponse.json();
-                        document.getElementById('total-tournaments').textContent = stats.totalTournaments || 0;
-                        document.getElementById('total-players').textContent = stats.totalPlayers || 0;
-                        document.getElementById('total-prize').textContent = '$' + (stats.totalPrizePool || 0).toFixed(0);
-                    }
+                try {
+                    const stats = await ApiService.tournaments.getStats();
+                    document.getElementById('total-tournaments').textContent = stats.totalTournaments || 0;
+                    document.getElementById('total-players').textContent = stats.totalPlayers || 0;
+                    document.getElementById('total-prize').textContent = '$' + (stats.totalPrizePool || 0).toFixed(0);
+                } catch (statsError) {
+                    console.error('Error loading stats:', statsError);
                 }
 
                 // Load tournaments
-                const tournamentsResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS));
-
-                if (tournamentsResponse && tournamentsResponse.ok) {
-                    const contentType = tournamentsResponse.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        const tournaments = await tournamentsResponse.json();
+                try {
+                    const tournaments = await ApiService.tournaments.getAll();
+                    if (tournaments && tournaments.length > 0) {
                         displayTournaments(tournaments);
                     } else {
                         showEmptyTournaments();
                     }
-                } else {
-                    showEmptyTournaments();
+                } catch (tournamentsError) {
+                    if (tournamentsError.message.includes('No tournaments found')) {
+                        showEmptyTournaments();
+                    } else {
+                        throw tournamentsError;
+                    }
                 }
+
             } catch (error) {
                 console.error('Error loading tournaments data:', error);
                 showEmptyTournaments();
@@ -647,8 +655,8 @@
                                 </label>
                                 <input type="text" id="freeFireId" name="freeFireId" required
                                        placeholder="Enter your Free Fire game ID"
-                                       pattern="[0-9]+" title="Please enter a valid numeric Free Fire ID">
-                                <small class="form-help">Your unique Free Fire player ID (numbers only)</small>
+                                       pattern="[A-Za-z0-9]+" title="Please enter a valid Free Fire ID (letters and numbers only)">
+                                <small class="form-help">Your unique Free Fire player ID (letters and numbers)</small>
                             </div>
 
                             <div class="form-group" id="teamSelectionGroup" style="display: none;">
@@ -701,26 +709,22 @@
         // Fetch tournament details
         async function fetchTournamentDetails(tournamentId) {
             try {
-                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENTS));
+                const tournaments = await ApiService.tournaments.getAll();
+                const tournament = tournaments.find(t => t._id === tournamentId);
 
-                if (response && response.ok) {
-                    const tournaments = await response.json();
-                    const tournament = tournaments.find(t => t._id === tournamentId);
+                if (tournament) {
+                    currentTournamentData = tournament;
 
-                    if (tournament) {
-                        currentTournamentData = tournament;
-
-                        // Show team selection for duo/squad tournaments
-                        const requiresTeamSelection = ['2v2', '4v4', '6v6'].includes(tournament.teamSize);
-                        const teamGroup = document.getElementById('teamSelectionGroup');
-                        if (requiresTeamSelection) {
-                            teamGroup.style.display = 'block';
-                            document.getElementById('teamSelection').required = true;
-                        }
-
-                        // Update registration summary
-                        updateRegistrationSummary(tournament);
+                    // Show team selection for duo/squad tournaments
+                    const requiresTeamSelection = ['2v2', '4v4', '6v6'].includes(tournament.teamSize);
+                    const teamGroup = document.getElementById('teamSelectionGroup');
+                    if (requiresTeamSelection) {
+                        teamGroup.style.display = 'block';
+                        document.getElementById('teamSelection').required = true;
                     }
+
+                    // Update registration summary
+                    updateRegistrationSummary(tournament);
                 }
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
@@ -785,43 +789,19 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
 
             try {
-                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TOURNAMENT_REGISTER(tournamentId)), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        freeFireId,
-                        termsAccepted,
-                        teamSelection: requiresTeamSelection ? teamSelection : null
-                    })
+                const result = await ApiService.tournaments.register(tournamentId, {
+                    freeFireId,
+                    termsAccepted,
+                    teamSelection: requiresTeamSelection ? teamSelection : null
                 });
 
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    if (response.status === 401) {
-                        alert('Authentication expired. Please log in again.');
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('userName');
-                        localStorage.removeItem('userEmail');
-                        window.location.href = 'auth.html';
-                        return;
-                    }
-                    throw new Error('Invalid response from server');
-                }
+                alert(`Successfully registered for ${currentTournamentData.tournamentId}! ${result.teamAssigned ? `You have been assigned to ${result.teamAssigned.replace('_', ' ').toUpperCase()}.` : ''}`);
+                closeRegistrationModal();
+                loadTournamentsData(); // Refresh data
 
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert(`Successfully registered for ${currentTournamentData.tournamentId}! ${result.teamAssigned ? `You have been assigned to ${result.teamAssigned.replace('_', ' ').toUpperCase()}.` : ''}`);
-                    closeRegistrationModal();
-                    loadTournamentsData(); // Refresh data
-                } else {
-                    showFormError(result.message || 'Failed to register for tournament');
-                }
             } catch (error) {
                 console.error('Error registering for tournament:', error);
-                showFormError('Network error. Please check your connection and try again.');
+                showFormError(error.message || 'Failed to register for tournament');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
@@ -864,19 +844,24 @@
             try {
                 showLoading();
 
-                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.PROFILE));
+                const user = await ApiService.user.getProfile();
+                const totalBalance = (user.winningAmount || 0) + (user.depositAmount || 0);
 
-                if (response && response.ok) {
-                    const user = await response.json();
-                    const totalBalance = (user.winningAmount || 0) + (user.depositAmount || 0);
+                document.getElementById('totalBalance').textContent = totalBalance.toFixed(2);
+                document.getElementById('winningBalance').textContent = (user.winningAmount || 0).toFixed(2);
+                document.getElementById('depositBalance').textContent = (user.depositAmount || 0).toFixed(2);
 
-                    document.getElementById('totalBalance').textContent = totalBalance.toFixed(2);
-                    document.getElementById('winningBalance').textContent = (user.winningAmount || 0).toFixed(2);
-                    document.getElementById('depositBalance').textContent = (user.depositAmount || 0).toFixed(2);
-
-                    // Load transactions after wallet data
-                    loadTransactions();
+                // Enable/disable withdraw button based on winning balance
+                const withdrawBtn = document.getElementById('withdrawBtn');
+                if (user.winningAmount >= 20) {
+                    withdrawBtn.disabled = false;
+                } else {
+                    withdrawBtn.disabled = true;
                 }
+
+                // Load transactions after wallet data
+                await loadTransactions();
+
             } catch (error) {
                 console.error('Error loading wallet data:', error);
             } finally {
@@ -889,34 +874,23 @@
             try {
                 showLoading();
 
-                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.MY_TOURNAMENTS));
+                const tournaments = await ApiService.user.getMyTournaments();
 
-                if (response && response.ok) {
-                    const tournaments = await response.json();
+                // Fetch registration details for each tournament
+                const tournamentsWithRegistration = await Promise.all(
+                    tournaments.map(async (tournament) => {
+                        try {
+                            const registration = await ApiService.tournaments.getUserRegistration(tournament._id);
+                            return { ...tournament, registration };
+                        } catch (error) {
+                            console.error('Error fetching registration for tournament:', tournament._id, error);
+                            return { ...tournament, registration: null };
+                        }
+                    })
+                );
 
-                    // Fetch registration details for each tournament
-                    const tournamentsWithRegistration = await Promise.all(
-                        tournaments.map(async (tournament) => {
-                            try {
-                                const regResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.USER_REGISTRATION(tournament._id)));
+                displayMyMatches(tournamentsWithRegistration);
 
-                                if (regResponse.ok) {
-                                    const registration = await regResponse.json();
-                                    return { ...tournament, registration };
-                                } else {
-                                    return { ...tournament, registration: null };
-                                }
-                            } catch (error) {
-                                console.error('Error fetching registration for tournament:', tournament._id, error);
-                                return { ...tournament, registration: null };
-                            }
-                        })
-                    );
-
-                    displayMyMatches(tournamentsWithRegistration);
-                } else {
-                    showMyMatchesError();
-                }
             } catch (error) {
                 console.error('Error loading my matches:', error);
                 showMyMatchesError();
@@ -1006,6 +980,39 @@
 
         // Get room details based on tournament status
         function getRoomDetails(tournament) {
+            // Priority: If room details exist, show them (Admin likely added them intentionally)
+            if (tournament.roomId && tournament.roomPassword) {
+                return `
+                        <div class="room-info">
+                            <div class="room-credentials">
+                                <div class="room-code">
+                                    <span class="label">Room ID:</span>
+                                    <span class="value select-all">${tournament.roomId}</span>
+                                    <i class="far fa-copy copy-btn" onclick="copyToClipboard('${tournament.roomId}')"></i>
+                                </div>
+                                <div class="room-password">
+                                    <span class="label">Pass:</span>
+                                    <span class="value select-all">${tournament.roomPassword}</span>
+                                    <i class="far fa-copy copy-btn" onclick="copyToClipboard('${tournament.roomPassword}')"></i>
+                                </div>
+                            </div>
+                            
+                            ${tournament.customUrl ? `
+                            <a href="${tournament.customUrl}" target="_blank" class="room-link-btn">
+                                <i class="fas fa-external-link-alt"></i> Join Lobby
+                            </a>
+                            ` : ''}
+                            
+                            ${tournament.roomNotes ? `
+                            <div class="room-notes">
+                                <i class="fas fa-info-circle"></i>
+                                <span>${tournament.roomNotes}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+            }
+
             if (tournament.status === 'upcoming') {
                 return `
                     <div class="room-pending">
@@ -1014,28 +1021,14 @@
                     </div>
                 `;
             } else if (tournament.status === 'active' || tournament.status === 'completed') {
-                if (tournament.roomId && tournament.roomPassword) {
-                    return `
-                        <div class="room-info">
-                            <div class="room-code">
-                                <i class="fas fa-key"></i>
-                                <span>Room: ${tournament.roomId}</span>
-                            </div>
-                            <div class="room-password">
-                                <i class="fas fa-lock"></i>
-                                <span>Password: ${tournament.roomPassword}</span>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div class="room-pending">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <span>Waiting for room details...</span>
-                        </div>
-                    `;
-                }
+                return `
+                    <div class="room-pending">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Waiting for room details...</span>
+                    </div>
+                `;
             }
+
             return '';
         }
 
@@ -1062,13 +1055,7 @@
             try {
                 showLoading();
 
-                const response = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.TRANSACTIONS));
-
-                if (!response || !response.ok) {
-                    throw new Error('Failed to load transactions');
-                }
-
-                const data = await response.json();
+                const data = await ApiService.user.getTransactions();
                 const transactions = data.transactions || [];
 
                 const transactionsList = document.getElementById('transactionsList');
@@ -1086,7 +1073,7 @@
                             <div class="transaction-amount">
                                 <span class="amount">--</span>
                             </div>
-                        </div>
+                        </div >
                     `;
                     return;
                 }
@@ -1104,7 +1091,7 @@
                             <span class="amount">${transaction.amount >= 0 ? '+' : ''}$${Math.abs(transaction.amount).toFixed(2)}</span>
                         </div>
                     </div>
-                `).join('');
+                    `).join('');
             } catch (error) {
                 console.error('Error loading transactions:', error);
                 const transactionsList = document.getElementById('transactionsList');
@@ -1120,12 +1107,14 @@
                         <div class="transaction-amount">
                             <span class="amount">--</span>
                         </div>
-                    </div>
-                `;
+                    </div >
+                    `;
             } finally {
                 hideLoading();
             }
         }
+
+
 
         function getTransactionIcon(type) {
             switch (type) {
@@ -1183,6 +1172,61 @@
             document.getElementById('proceedBtn').disabled = true;
         }
 
+        // Withdrawal Modal Functions
+        function openWithdrawModal() {
+            const winningBalance = parseFloat(document.getElementById('winningBalance').textContent);
+            document.getElementById('availableWithdrawBalance').textContent = `$${winningBalance.toFixed(2)} `;
+            document.getElementById('withdrawModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('upiId').value = '';
+        }
+
+        async function submitWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const upiId = document.getElementById('upiId').value.trim();
+            const winningBalance = parseFloat(document.getElementById('winningBalance').textContent);
+
+            // Validation
+            if (!amount || amount < 20) {
+                alert('Minimum withdrawal amount is $20');
+                return;
+            }
+
+            if (amount > winningBalance) {
+                alert(`Insufficient balance.You have $${winningBalance.toFixed(2)} `);
+                return;
+            }
+
+            if (!upiId) {
+                alert('Please enter your UPI ID');
+                return;
+            }
+
+            try {
+                showLoading();
+
+                const result = await ApiService.user.withdraw(amount, upiId);
+
+                alert('Withdrawal request submitted successfully! Your request is pending admin approval.');
+                closeWithdrawModal();
+                loadWalletData(); // Reload wallet to update balance
+
+            } catch (error) {
+                console.error('Error submitting withdrawal:', error);
+                alert(error.message || 'Error submitting withdrawal request');
+            } finally {
+                hideLoading();
+            }
+        }
+
+
+
         // Amount selection
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('amount-btn')) {
@@ -1237,23 +1281,10 @@
                 proceedBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
                 // Create payment order
-                const orderResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.CREATE_PAYMENT_ORDER), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ amount })
-                });
-
-                if (!orderResponse || !orderResponse.ok) {
-                    throw new Error('Failed to create payment order');
-                }
-
-                const orderData = await orderResponse.json();
+                const orderData = await ApiService.payment.createOrder(amount);
 
                 // Get Razorpay key
-                const keyResponse = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.GET_RAZORPAY_KEY));
-                const keyData = await keyResponse.json();
+                const keyData = await ApiService.payment.getRazorpayKey();
 
                 // Initialize Razorpay
                 const options = {
@@ -1288,6 +1319,7 @@
             } catch (error) {
                 console.error('Payment error:', error);
                 alert('Failed to initiate payment. Please try again.');
+                const proceedBtn = document.getElementById('proceedBtn');
                 proceedBtn.disabled = false;
                 proceedBtn.innerHTML = 'Proceed to Pay';
             }
@@ -1295,30 +1327,17 @@
 
         async function verifyPayment(razorpayResponse, receipt) {
             try {
-                const verifyResponse = await authenticatedFetch(buildApiUrl(API_CONFIG.ENDPOINTS.VERIFY_PAYMENT), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        razorpay_order_id: razorpayResponse.razorpay_order_id,
-                        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-                        razorpay_signature: razorpayResponse.razorpay_signature,
-                        receipt: receipt
-                    })
+                const result = await ApiService.payment.verifyPayment({
+                    razorpay_order_id: razorpayResponse.razorpay_order_id,
+                    razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                    razorpay_signature: razorpayResponse.razorpay_signature,
+                    receipt: receipt
                 });
 
-                if (!verifyResponse) return;
+                alert(`Payment successful! $${result.amount} has been added to your wallet.`);
+                closeDepositModal();
+                loadWalletData(); // Refresh wallet data
 
-                const result = await verifyResponse.json();
-
-                if (verifyResponse.ok) {
-                    alert(`Payment successful! $${result.amount} has been added to your wallet.`);
-                    closeDepositModal();
-                    loadWalletData(); // Refresh wallet data
-                } else {
-                    alert('Payment verification failed. Please contact support if amount was debited.');
-                }
             } catch (error) {
                 console.error('Payment verification error:', error);
                 alert('Payment verification failed. Please contact support.');
@@ -1328,7 +1347,7 @@
 
         // Scroll tournament section horizontally
         function scrollSection(prefix, direction) {
-            const row = document.getElementById(`row-${prefix}`);
+            const row = document.getElementById(`row - ${prefix}`);
             if (!row) return;
 
             const scrollAmount = 320; // Card width + gap
@@ -2004,7 +2023,403 @@
                 opacity: 1;
             }
         }
+
+        /* Footer Styles */
+        .app-footer {
+            background: #2d3748;
+            color: #edf2f7;
+            padding: 40px 20px 20px;
+            margin-top: 50px;
+            padding-bottom: 80px;
+            /* Space for bottom nav */
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-section h4 {
+            color: #a0aec0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #4a5568;
+            padding-bottom: 5px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: #cbd5e0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #667eea;
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid #4a5568;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .footer-brand i {
+            color: #667eea;
+            margin-right: 8px;
+        }
     </style>
+
+    <!-- Chat Support Styles -->
+    <style>
+        .chat-widget-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            z-index: 9998;
+            transition: transform 0.3s;
+        }
+
+        .chat-widget-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUpFade 0.3s ease;
+        }
+
+        .chat-window.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-msg {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .chat-msg.user {
+            align-self: flex-end;
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-msg.admin {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-footer {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-footer input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-footer button {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chat-window {
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <i class="fas fa-trophy"></i>
+                    <strong>FUTUREBOUND TECH</strong>
+                </div>
+                <p style="color: #a0aec0; margin-top: 15px; font-size: 0.9rem;">
+                    The ultimate competitive gaming platform for Free Fire enthusiasts. Join daily tournaments, show
+                    your skills, and earn real rewards.
+                </p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="about-us.html">About Us</a></li>
+                    <li><a href="contact-us.html">Contact Us</a></li>
+                    <li><a href="terms-conditions.html">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="refund-policy.html">Refund Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="mailto:support@futurebound.tech"><i class="fas fa-envelope"></i>
+                            support@futurebound.tech</a></li>
+                    <li><a href="#"><i class="fas fa-headset"></i> In-App Chat Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 FutureBound Tech. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Chat Widget HTML -->
+    <div class="chat-widget-btn" onclick="toggleChat()">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <h3><i class="fas fa-headset"></i> Support</h3>
+            <button class="close-chat" onclick="toggleChat()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chat-body" id="userChatBody">
+            <div style="text-align: center; color: #999; margin-top: 20px;">
+                Welcome to Support!<br>How can we help you?
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="userChatInput" placeholder="Type a message..." onkeypress="handleChatEnter(event)">
+            <button onclick="sendUserMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
 </body>
 
 </html>
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Copied to clipboard!');
+        }, (err) => {
+            console.error('Could not copy text: ', err);
+        });
+    }
+
+    // Chat Functions
+    let isChatOpen = false;
+    let chatPollInterval = null;
+
+    function toggleChat() {
+        const chatWindow = document.getElementById('chatWindow');
+        isChatOpen = !isChatOpen;
+
+        if (isChatOpen) {
+            chatWindow.classList.add('active');
+            loadUserMessages();
+            chatPollInterval = setInterval(loadUserMessages, 3000);
+        } else {
+            chatWindow.classList.remove('active');
+            if (chatPollInterval) clearInterval(chatPollInterval);
+        }
+    }
+
+    function handleChatEnter(e) {
+        if (e.key === 'Enter') sendUserMessage();
+    }
+
+    async function sendUserMessage() {
+        const input = document.getElementById('userChatInput');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Check login
+        if (!ApiService.isAuthenticated()) {
+            alert('Please login to chat with support');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/support/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ message })
+            });
+
+            if (response.ok) {
+                input.value = '';
+                loadUserMessages();
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    }
+
+    async function loadUserMessages() {
+        if (!ApiService.isAuthenticated()) return;
+
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}/support/messages`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+
+
+            // Handle 404 or HTML response (indicates server hasn't updated)
+            const contentType = response.headers.get("content-type");
+            if (!response.ok || (contentType && contentType.indexOf("application/json") === -1)) {
+                // If 404 or just general failure returning HTML
+                if (response.status === 404 || (contentType && contentType.includes('text/html'))) {
+                    const chatBody = document.getElementById('userChatBody');
+                    chatBody.innerHTML = `
+                        <div style="text-align: center; color: #dc3545; margin-top: 20px; padding: 10px;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 10px;"></i><br>
+                            <strong>System Update Required</strong><br>
+                            Please ask Admin to RESTART the backend server to enable chat.
+                        </div>`;
+                }
+                return;
+            }
+
+            const messages = await response.json();
+
+            const chatBody = document.getElementById('userChatBody');
+
+            if (messages.length === 0) {
+                chatBody.innerHTML = `
+                    <div style="text-align: center; color: #999; margin-top: 20px;">
+                        Welcome to Support!<br>How can we help you?
+                    </div>`;
+                return;
+            }
+
+            // Simple render - optimize in production to append only new
+            chatBody.innerHTML = messages.map(msg => `
+                <div class="chat-msg ${msg.sender}">
+                    ${msg.message}
+                </div>
+            `).join('');
+
+            chatBody.scrollTop = chatBody.scrollHeight;
+        } catch (error) {
+            console.error('Error loading chat:', error);
+        }
+    }
+</script>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Withdrawals - Admin</title>
+    <script src="../config.js"></script>
+    <script src="../api-service.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .withdrawals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .withdrawals-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .withdrawals-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .withdrawals-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            margin: 0 3px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .btn-details {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-details:hover {
+            background: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 22px;
+        }
+
+        .detail-row {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detail-row label {
+            font-weight: 600;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .detail-row value {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .modal-actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .close-btn {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background: #5a6268;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Payment Withdrawals</h1>
+            <a href="admin-dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterWithdrawals('all')">All</button>
+            <button class="filter-btn" onclick="filterWithdrawals('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterWithdrawals('approved')">Approved</button>
+            <button class="filter-btn" onclick="filterWithdrawals('rejected')">Rejected</button>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search by user name or email..."
+                    onkeyup="searchWithdrawals()">
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <i class="fas fa-spinner fa-spin fa-3x"></i>
+            <p>Loading withdrawals...</p>
+        </div>
+
+        <div id="tableContainer"></div>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Withdrawal Details</h2>
+            </div>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="close-btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Modal -->
+    <div id="processModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="processTitle">Process Withdrawal</h2>
+            </div>
+            <div id="processBody">
+                <div class="detail-row">
+                    <label>Notes (Optional):</label>
+                    <textarea id="processNotes" placeholder="Add any notes..."></textarea>
+                </div>
+                <div class="detail-row" id="rejectionReasonDiv" style="display: none;">
+                    <label>Rejection Reason:</label>
+                    <textarea id="rejectionReason" placeholder="Reason for rejection..."></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="close-btn" onclick="closeProcessModal()">Cancel</button>
+                <button id="confirmProcessBtn" class="action-btn" onclick="confirmProcess()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+        let allWithdrawals = [];
+        let currentWithdrawal = null;
+        let currentAction = null;
+
+        // Check admin authentication
+        if (!ApiService.isAdminAuthenticated()) {
+            window.location.href = 'admin-login.html';
+        }
+
+        // Load withdrawals on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWithdrawals();
+        });
+
+        async function loadWithdrawals() {
+            const loading = document.getElementById('loading');
+            const tableContainer = document.getElementById('tableContainer');
+
+            loading.style.display = 'block';
+            tableContainer.innerHTML = '';
+
+            try {
+                allWithdrawals = await ApiService.admin.getWithdrawals(currentFilter);
+                displayWithdrawals(allWithdrawals);
+            } catch (error) {
+                console.error('Error loading withdrawals:', error);
+                tableContainer.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error loading withdrawals: ${error.message}</p></div>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayWithdrawals(withdrawals) {
+            const tableContainer = document.getElementById('tableContainer');
+
+            if (withdrawals.length === 0) {
+                tableContainer.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No withdrawal requests found</p></div>';
+                return;
+            }
+
+            let html = `
+                <table class="withdrawals-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Amount</th>
+                            <th>Balance</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            withdrawals.forEach(w => {
+                const date = new Date(w.requestDate).toLocaleDateString();
+                const statusClass = `status-${w.status}`;
+                const balance = (w.userId?.winningAmount || 0) + (w.userId?.depositAmount || 0);
+
+                html += `
+                    <tr>
+                        <td>${w.userId?.fullname || 'N/A'}</td>
+                        <td>${w.userId?.email || 'N/A'}</td>
+                        <td><strong>$${w.amount}</strong></td>
+                        <td>$${balance.toFixed(2)}</td>
+                        <td>${date}</td>
+                        <td><span class="status-badge ${statusClass}">${w.status.toUpperCase()}</span></td>
+                        <td>
+                            <button class="action-btn btn-details" onclick='viewDetails(${JSON.stringify(w)})'>
+                                <i class="fas fa-eye"></i> Details
+                            </button>
+                            ${w.status === 'pending' ? `
+                                <button class="action-btn btn-approve" onclick='processWithdrawal("${w._id}", "approve")'>
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="action-btn btn-reject" onclick='processWithdrawal("${w._id}", "reject")'>
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            tableContainer.innerHTML = html;
+        }
+
+        function filterWithdrawals(status) {
+            currentFilter = status;
+
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            loadWithdrawals();
+        }
+
+        function searchWithdrawals() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            if (!searchTerm) {
+                displayWithdrawals(allWithdrawals);
+                return;
+            }
+
+            const filtered = allWithdrawals.filter(w => {
+                const name = (w.userId?.fullname || '').toLowerCase();
+                const email = (w.userId?.email || '').toLowerCase();
+                return name.includes(searchTerm) || email.includes(searchTerm);
+            });
+
+            displayWithdrawals(filtered);
+        }
+
+        function viewDetails(withdrawal) {
+            const modal = document.getElementById('detailsModal');
+            const modalBody = document.getElementById('modalBody');
+
+            const date = new Date(withdrawal.requestDate).toLocaleDateString();
+            const processedDate = withdrawal.processedDate ? new Date(withdrawal.processedDate).toLocaleDateString() : 'N/A';
+
+            modalBody.innerHTML = `
+                <div class="detail-row">
+                    <label>User:</label>
+                    <value>${withdrawal.userId?.fullname || 'N/A'}</value>
+                </div>
+                <div class="detail-row">
+                    <label>Email:</label>
+                    <value>${withdrawal.userId?.email || 'N/A'}</value>
+                </div>
+                <div class="detail-row">
+                    <label>Amount:</label>
+                    <value><strong>$${withdrawal.amount}</strong></value>
+                </div>
+                <div class="detail-row">
+                    <label>Request Date:</label>
+                    <value>${date}</value>
+                </div>
+                <div class="detail-row">
+                    <label>Status:</label>
+                    <value><span class="status-badge status-${withdrawal.status}">${withdrawal.status.toUpperCase()}</span></value>
+                </div>
+                ${withdrawal.bankDetails ? `
+                    <div class="detail-row">
+                        <label>UPI ID:</label>
+                        <value>${withdrawal.bankDetails.upiId || 'N/A'}</value>
+                    </div>
+                    <div class="detail-row">
+                        <label>Account Number:</label>
+                        <value>${withdrawal.bankDetails.accountNumber || 'N/A'}</value>
+                    </div>
+                    <div class="detail-row">
+                        <label>IFSC Code:</label>
+                        <value>${withdrawal.bankDetails.ifscCode || 'N/A'}</value>
+                    </div>
+                    <div class="detail-row">
+                        <label>Account Holder:</label>
+                        <value>${withdrawal.bankDetails.accountHolderName || 'N/A'}</value>
+                    </div>
+                ` : ''}
+                ${withdrawal.processedBy ? `
+                    <div class="detail-row">
+                        <label>Processed By:</label>
+                        <value>${withdrawal.processedBy}</value>
+                    </div>
+                    <div class="detail-row">
+                        <label>Processed Date:</label>
+                        <value>${processedDate}</value>
+                    </div>
+                ` : ''}
+                ${withdrawal.notes ? `
+                    <div class="detail-row">
+                        <label>Notes:</label>
+                        <value>${withdrawal.notes}</value>
+                    </div>
+                ` : ''}
+                ${withdrawal.rejectionReason ? `
+                    <div class="detail-row">
+                        <label>Rejection Reason:</label>
+                        <value>${withdrawal.rejectionReason}</value>
+                    </div>
+                ` : ''}
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        function processWithdrawal(withdrawalId, action) {
+            currentWithdrawal = withdrawalId;
+            currentAction = action;
+
+            const modal = document.getElementById('processModal');
+            const title = document.getElementById('processTitle');
+            const rejectionDiv = document.getElementById('rejectionReasonDiv');
+            const confirmBtn = document.getElementById('confirmProcessBtn');
+
+            title.textContent = action === 'approve' ? 'Approve Withdrawal' : 'Reject Withdrawal';
+            rejectionDiv.style.display = action === 'reject' ? 'block' : 'none';
+            confirmBtn.className = action === 'approve' ? 'action-btn btn-approve' : 'action-btn btn-reject';
+            confirmBtn.innerHTML = action === 'approve' ? '<i class="fas fa-check"></i> Approve' : '<i class="fas fa-times"></i> Reject';
+
+            document.getElementById('processNotes').value = '';
+            document.getElementById('rejectionReason').value = '';
+
+            modal.classList.add('active');
+        }
+
+        function closeProcessModal() {
+            document.getElementById('processModal').classList.remove('active');
+            currentWithdrawal = null;
+            currentAction = null;
+        }
+
+        async function confirmProcess() {
+            const notes = document.getElementById('processNotes').value;
+            const rejectionReason = document.getElementById('rejectionReason').value;
+
+            if (currentAction === 'reject' && !rejectionReason) {
+                alert('Please provide a rejection reason');
+                return;
+            }
+
+            try {
+                await ApiService.admin.processWithdrawal(currentWithdrawal, currentAction, notes, rejectionReason);
+                alert(`Withdrawal ${currentAction}ed successfully!`);
+                closeProcessModal();
+                loadWithdrawals();
+            } catch (error) {
+                console.error('Error processing withdrawal:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

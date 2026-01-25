@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Future Bound</title>
-    <link rel="stylesheet" href="../css/admin-login.css">
+    <title>Admin Login - Winzone Arena</title>
     <script src="../config.js"></script>
+    <script src="../api-service.js"></script>
+    <link rel="stylesheet" href="../css/admin-login.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
     <div class="auth-container">
         <div class="admin-login-card">
@@ -155,23 +159,24 @@
                 fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_VERIFY_TOKEN), {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json().then(data => {
-                            window.location.href = 'admin-dashboard.html';
-                        });
-                    } else {
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json().then(data => {
+                                window.location.href = 'admin-dashboard.html';
+                            });
+                        } else {
+                            localStorage.removeItem('adminToken');
+                            localStorage.removeItem('adminUser');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Admin token verification failed:', error);
                         localStorage.removeItem('adminToken');
                         localStorage.removeItem('adminUser');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Admin token verification failed:', error);
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('adminUser');
-                });
+                    });
             }
         });
     </script>
 </body>
+
 </html>
