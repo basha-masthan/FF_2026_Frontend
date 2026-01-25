@@ -1,7 +1,7 @@
 // ============================================
 // 🔧 EASY MODE SWITCH - Change this to switch between dev and production
 // ============================================
-const DEV_MODE = true; // Set to true for localhost:5050, false for production
+const DEV_MODE = false; // Set to true for localhost:5050, false for production
 
 // API Configuration
 const API_CONFIG = {
