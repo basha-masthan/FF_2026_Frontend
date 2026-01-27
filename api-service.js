@@ -223,6 +223,33 @@ class ApiServiceClass {
                 method: 'POST',
                 body: JSON.stringify({ amount, upiId })
             });
+        },
+
+        /**
+         * Get unread support message count
+         */
+        getUnreadSupportCount: async () => {
+            // Return mock data if backend not ready, or assume backend works. 
+            // Ideally: return await this.request('/user/support/unread-count');
+            // For now, let's assume the endpoint exists.
+            return await this.request(API_CONFIG.ENDPOINTS.USER_SUPPORT_UNREAD || '/user/support/unread-count');
+        },
+
+        /**
+         * Get support messages
+         */
+        getSupportMessages: async () => {
+            return await this.request(API_CONFIG.ENDPOINTS.USER_SUPPORT_MESSAGES || '/user/support/messages');
+        },
+
+        /**
+         * Send support message
+         */
+        sendSupportMessage: async (message) => {
+            return await this.request(API_CONFIG.ENDPOINTS.USER_SUPPORT_SEND || '/user/support/send', {
+                method: 'POST',
+                body: JSON.stringify({ message })
+            });
         }
     };
 

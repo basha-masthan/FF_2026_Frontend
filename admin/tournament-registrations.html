@@ -20,11 +20,16 @@
                     <i class="fas fa-gamepad"></i>
                     <span>Future Bound</span>
                 </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn">
+                    <i class="fas fa-times"></i>
+                </button>
                 <div class="admin-badge">
                     <i class="fas fa-crown"></i>
                     <span>Admin Panel</span>
                 </div>
             </div>
+
+
 
             <nav class="sidebar-nav">
                 <a href="admin-dashboard.html" class="nav-item">
@@ -69,6 +74,12 @@
                 </button>
             </div>
         </aside>
+
+        <!-- Main Content -->
+        </aside>
+
+        <!-- Sidebar Overlay -> moved outside aside to prevent transform issues -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <!-- Main Content -->
         <main class="admin-main">
@@ -295,9 +306,30 @@
         }
 
         // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', () => {
-            document.querySelector('.admin-sidebar').classList.toggle('mobile-open');
-        });
+        // Mobile menu toggle logic
+        const sidebar = document.querySelector('.admin-sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+        const menuBtn = document.getElementById('menuToggle');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        if (menuBtn) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
 
         // Update current time
         function updateTime() {
@@ -376,7 +408,7 @@
                             </div>
                             <div class="stat">
                                 <span class="stat-label">Entry Fee</span>
-                                <span class="stat-value">$${tournament.entryFee}</span>
+                                <span class="stat-value">₹${tournament.entryFee}</span>
                             </div>
                             <div class="stat">
                                 <span class="stat-label">Players</span>
@@ -384,7 +416,7 @@
                             </div>
                             <div class="stat">
                                 <span class="stat-label">Start Time</span>
-                                <span class="stat-value">${new Date(tournament.startTime).toLocaleDateString()}</span>
+                                <span class="stat-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                         </div>
                     </div>
@@ -456,10 +488,10 @@
 
                         <div class="stat-card success">
                             <div class="stat-icon">
-                                <i class="fas fa-dollar-sign"></i>
+                                <i class="fas fa-rupee-sign"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>$${totalRevenue.toFixed(2)}</h3>
+                                <h3>₹${totalRevenue.toFixed(2)}</h3>
                                 <p>Total Revenue</p>
                             </div>
                         </div>
@@ -527,7 +559,7 @@
                     </td>
                     <td>
                         <div class="winning-amount-info">
-                            <div class="winning-amount">$${(registration.tournamentWinningAmount || 0).toFixed(2)}</div>
+                            <div class="winning-amount">₹${(registration.tournamentWinningAmount || 0).toFixed(2)}</div>
                             <button onclick="showUpdateWinningModal('${registration.registrationId}', ${registration.tournamentWinningAmount || 0})" class="action-btn-small" title="Update Winnings">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -643,7 +675,7 @@
                             </div>
                             <div class="stat-item">
                                 <h4>Revenue Stats</h4>
-                                <p>Entry Fee: $${stats.revenueStats.entryFee}</p>
+                                <p>Entry Fee: ₹${stats.revenueStats.entryFee}</p>
                                 <p>Expected Revenue: ${stats.revenueStats.expectedRevenue}</p>
                                 <p>Collected Revenue: ${stats.revenueStats.collectedRevenue}</p>
                             </div>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -8,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="../config.js"></script>
 </head>
+
 <body>
     <div class="create-tournament-page">
         <!-- Header -->
@@ -36,7 +38,8 @@
                                 <i class="fas fa-hashtag"></i>
                                 Tournament ID
                             </label>
-                            <input type="text" id="tournamentId" name="tournamentId" readonly placeholder="Auto-generated based on mode">
+                            <input type="text" id="tournamentId" name="tournamentId" readonly
+                                placeholder="Auto-generated based on mode">
                             <small>Auto-generated based on selected mode and team size</small>
                         </div>
                         <div class="form-group">
@@ -105,9 +108,11 @@
                         </div>
                         <input type="hidden" id="selectedBanner" name="banner" value="">
                         <div class="selected-banner-display">
-                            <p><strong>Selected Banner:</strong> <span id="selectedBannerName" style="color: #dc3545;">None - Please select a banner</span></p>
+                            <p><strong>Selected Banner:</strong> <span id="selectedBannerName"
+                                    style="color: #dc3545;">None - Please select a banner</span></p>
                             <div id="bannerPreview" class="banner-preview">
-                                <span class="no-banner">⚠️ No banner selected - Tournament will use default banner</span>
+                                <span class="no-banner">⚠️ No banner selected - Tournament will use default
+                                    banner</span>
                             </div>
                         </div>
                     </div>
@@ -116,24 +121,26 @@
                 <!-- Pricing & Schedule Section -->
                 <div class="form-section">
                     <div class="section-header">
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="fas fa-rupee-sign"></i>
                         <h2>Pricing & Schedule</h2>
                     </div>
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="entryFee">
                                 <i class="fas fa-coins"></i>
-                                Entry Fee ($)
+                                Entry Fee (₹)
                             </label>
-                            <input type="number" id="entryFee" name="entryFee" required min="0" step="0.01" placeholder="5.00">
+                            <input type="number" id="entryFee" name="entryFee" required min="0" step="0.01"
+                                placeholder="5.00">
                             <small>Cost for each participant to join</small>
                         </div>
                         <div class="form-group">
                             <label for="winningFee">
                                 <i class="fas fa-trophy"></i>
-                                Total Prize Pool ($)
+                                Total Prize Pool (₹)
                             </label>
-                            <input type="number" id="winningFee" name="winningFee" required min="0" step="0.01" placeholder="500.00">
+                            <input type="number" id="winningFee" name="winningFee" required min="0" step="0.01"
+                                placeholder="500.00">
                             <small>Total amount to be distributed as prizes</small>
                         </div>
                         <div class="form-group full-width">
@@ -263,7 +270,7 @@
                             <div class="prize-inputs" id="perKillInputs" style="display: none;">
                                 <div class="per-kill-input">
                                     <div class="input-group">
-                                        <span class="input-prefix">$</span>
+                                        <span class="input-prefix">₹</span>
                                         <input type="number" placeholder="2.00" step="0.01">
                                         <span class="input-suffix">per kill</span>
                                     </div>
@@ -301,21 +308,21 @@
             fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ADMIN_VERIFY_TOKEN), {
                 headers: { 'Authorization': `Bearer ${adminToken}` }
             })
-            .then(response => {
-                if (!response.ok) {
+                .then(response => {
+                    if (!response.ok) {
+                        localStorage.removeItem('adminToken');
+                        localStorage.removeItem('adminUser');
+                        window.location.href = 'admin-login.html';
+                    } else {
+                        // Load banner options
+                        loadBannerOptions();
+                    }
+                })
+                .catch(() => {
                     localStorage.removeItem('adminToken');
                     localStorage.removeItem('adminUser');
                     window.location.href = 'admin-login.html';
-                } else {
-                    // Load banner options
-                    loadBannerOptions();
-                }
-            })
-            .catch(() => {
-                localStorage.removeItem('adminToken');
-                localStorage.removeItem('adminUser');
-                window.location.href = 'admin-login.html';
-            });
+                });
         });
 
         // Load available banner images
@@ -375,10 +382,10 @@
                 maxSlotsFormGroup.querySelector('small').textContent = 'Auto-calculated based on team size';
 
                 // Auto-calculate maxSlots based on team size
-                teamSizeSelect.addEventListener('change', function() {
+                teamSizeSelect.addEventListener('change', function () {
                     const teamSize = this.value;
                     let calculatedSlots = 0;
-                    switch(teamSize) {
+                    switch (teamSize) {
                         case '1vs1': calculatedSlots = 2; break;
                         case '2v2': calculatedSlots = 4; break;
                         case '4v4': calculatedSlots = 8; break;
@@ -439,15 +446,15 @@
         }
 
         // Prize option toggles
-        document.getElementById('enableTop5').addEventListener('change', function() {
+        document.getElementById('enableTop5').addEventListener('change', function () {
             document.getElementById('top5Inputs').style.display = this.checked ? 'block' : 'none';
         });
 
-        document.getElementById('enableTop10').addEventListener('change', function() {
+        document.getElementById('enableTop10').addEventListener('change', function () {
             document.getElementById('top10Inputs').style.display = this.checked ? 'block' : 'none';
         });
 
-        document.getElementById('enablePerKill').addEventListener('change', function() {
+        document.getElementById('enablePerKill').addEventListener('change', function () {
             document.getElementById('perKillInputs').style.display = this.checked ? 'block' : 'none';
         });
 
@@ -551,4 +558,5 @@
         });
     </script>
 </body>
+
 </html>

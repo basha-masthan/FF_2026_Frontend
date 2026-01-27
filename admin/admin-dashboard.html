@@ -20,11 +20,16 @@
                     <i class="fas fa-gamepad"></i>
                     <span>Future Bound</span>
                 </div>
+                <button class="sidebar-close-btn" id="sidebarCloseBtn">
+                    <i class="fas fa-times"></i>
+                </button>
                 <div class="admin-badge">
                     <i class="fas fa-crown"></i>
                     <span>Admin Panel</span>
                 </div>
             </div>
+
+
 
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-section="overview">
@@ -77,6 +82,9 @@
                 </button>
             </div>
         </aside>
+
+        <!-- Sidebar Overlay -> moved outside aside to prevent transform issues -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <!-- Main Content -->
         <main class="admin-main">
@@ -174,10 +182,15 @@
                                     <i class="fas fa-users"></i>
                                     <span>Manage Users</span>
                                 </button>
-                                <button onclick="viewReports()" class="action-btn tertiary">
-                                    <i class="fas fa-chart-bar"></i>
-                                    <span>View Reports</span>
+                                <button onclick="viewTournaments()" class="action-btn tertiary">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>View Tournaments</span>
                                 </button>
+                                <a href="tournament-registrations.html" class="action-btn info-btn"
+                                    style="background: #17a2b8; color: white;">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    <span>Registrations</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -495,9 +508,30 @@
         });
 
         // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', () => {
-            document.querySelector('.admin-sidebar').classList.toggle('mobile-open');
-        });
+        // Mobile menu toggle logic
+        const sidebar = document.querySelector('.admin-sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
+        const menuBtn = document.getElementById('menuToggle');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        if (menuBtn) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent immediate bubbling
+                toggleSidebar();
+            });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
 
         // Update current time
         function updateTime() {
@@ -514,7 +548,7 @@
 
                 document.getElementById('totalUsers').textContent = stats.totalUsers;
                 document.getElementById('pendingVerifications').textContent = stats.pendingVerifications;
-                document.getElementById('activeSessions').textContent = stats.activeSessions;
+                document.getElementById('activeTournaments').textContent = stats.activeTournaments || '0';
                 document.getElementById('todaySignups').textContent = stats.todaySignups;
 
                 // Load recent activity
@@ -550,8 +584,11 @@
                     <td>${new Date(user.createdAt).toLocaleDateString()}</td>
                     <td><span class="status-active">Active</span></td>
                     <td>
-                        <button onclick="viewUser('${user._id}')" class="action-btn-small">View</button>
-                        <button onclick="deleteUser('${user._id}')" class="action-btn-small delete">Delete</button>
+                        <button onclick="messageUser('${user.userId || user._id}', '${user.fullname}', '${user.email}')" class="action-btn-small" title="Message User" style="background-color: #667eea; color: white; margin-right: 5px;">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                        <button onclick="viewUser('${user.userId || user._id}')" class="action-btn-small" title="View Details">View</button>
+                        <button onclick="deleteUser('${user.userId || user._id}')" class="action-btn-small delete" title="Delete User">Delete</button>
                     </td>
                 </tr>
             `).join('');
@@ -561,6 +598,21 @@
         function searchUsers() {
             const searchTerm = document.getElementById('userSearch').value;
             loadUsers(searchTerm);
+        }
+
+        // Helper functions for Quick Actions
+        function messageUser(userId, fullname, email) {
+            // Store user details to auto-open chat
+            sessionStorage.setItem('openChatUser', JSON.stringify({ userId, fullname, email }));
+            window.location.href = 'chat-support.html';
+        }
+
+        function viewUsers() {
+            document.querySelector('[data-section="users"]').click();
+        }
+
+        function viewTournaments() {
+            document.querySelector('[data-section="tournaments"]').click();
         }
 
         // Load recent activity
@@ -632,7 +684,7 @@
                             </div>
                             <div class="stat">
                                 <span class="stat-label">Entry Fee</span>
-                                <span class="stat-value">$${tournament.entryFee}</span>
+                                <span class="stat-value">₹${tournament.entryFee}</span>
                             </div>
                             <div class="stat">
                                 <span class="stat-label">Players</span>
@@ -640,14 +692,14 @@
                             </div>
                             <div class="stat">
                                 <span class="stat-label">Start Time</span>
-                                <span class="stat-value">${new Date(tournament.startTime).toLocaleDateString()}</span>
+                                <span class="stat-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                         </div>
 
                         <div class="prize-info">
-                            <h5>Prize Pool: $${tournament.winningFee}</h5>
+                            <h5>Prize Pool: ₹${tournament.winningFee}</h5>
                             ${tournament.prizes && tournament.prizes.perKill ?
-                    `<p>Per Kill: $${tournament.prizes.perKill}</p>` : ''}
+                    `<p>Per Kill: ₹${tournament.prizes.perKill}</p>` : ''}
                         </div>
                     </div>
 

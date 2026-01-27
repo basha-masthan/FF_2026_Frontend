@@ -331,8 +331,21 @@
             window.location.href = 'admin-login.html';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadChatUsers();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadChatUsers();
+
+            // Check for auto-open chat
+            const openChatUser = sessionStorage.getItem('openChatUser');
+            if (openChatUser) {
+                try {
+                    const user = JSON.parse(openChatUser);
+                    sessionStorage.removeItem('openChatUser'); // Clear it
+                    openChat(user.userId, user.fullname, user.email);
+                } catch (e) {
+                    console.error('Error parsing openChatUser', e);
+                }
+            }
+
             // Poll for new users/messages every 5 seconds
             setInterval(loadChatUsers, 5000);
         });

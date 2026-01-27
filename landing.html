@@ -321,17 +321,17 @@
                 container.innerHTML = allTournaments.map((tournament, index) => `
                     <div class="tournament-card animate-fade-in-up" style="animation-delay: ${index * 0.1}s">
                         <div class="tournament-header">
-                            <h3>${tournament.name}</h3>
+                            <h3>${tournament.name || tournament.tournamentId}</h3>
                             <span class="status active">Live</span>
                         </div>
                         <div class="tournament-stats">
                             <div class="stat">
                                 <i class="fas fa-users"></i>
-                                <span>${tournament.registeredPlayers}/${tournament.maxPlayers || 100}</span>
+                                <span>${tournament.registeredPlayers}/${tournament.maxPlayers || tournament.maxSlots || 100}</span>
                             </div>
                             <div class="stat">
                                 <i class="fas fa-trophy"></i>
-                                <span>$${tournament.prizePool}</span>
+                                <span>₹${tournament.prizePool || tournament.winningFee}</span>
                             </div>
                         </div>
                         <button class="btn-join" onclick="goToSignup()">Join Now</button>
@@ -363,7 +363,7 @@
                             </div>
                             <div class="stat">
                                 <i class="fas fa-trophy"></i>
-                                <span>$${tournament.prizePool}</span>
+                                <span>₹${tournament.prizePool}</span>
                             </div>
                         </div>
                         <button class="btn-join" onclick="goToSignup()">Join Now</button>

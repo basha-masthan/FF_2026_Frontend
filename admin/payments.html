@@ -421,8 +421,8 @@
                     <tr>
                         <td>${w.userId?.fullname || 'N/A'}</td>
                         <td>${w.userId?.email || 'N/A'}</td>
-                        <td><strong>$${w.amount}</strong></td>
-                        <td>$${balance.toFixed(2)}</td>
+                        <td><strong>₹${w.amount}</strong></td>
+                        <td>₹${balance.toFixed(2)}</td>
                         <td>${date}</td>
                         <td><span class="status-badge ${statusClass}">${w.status.toUpperCase()}</span></td>
                         <td>
@@ -493,7 +493,7 @@
                 </div>
                 <div class="detail-row">
                     <label>Amount:</label>
-                    <value><strong>$${withdrawal.amount}</strong></value>
+                    <value><strong>₹${withdrawal.amount}</strong></value>
                 </div>
                 <div class="detail-row">
                     <label>Request Date:</label>

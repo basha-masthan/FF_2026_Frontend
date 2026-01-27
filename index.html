@@ -20,6 +20,7 @@
                 <i class="fas fa-trophy"></i>
                 Winzone Arena
             </a>
+
             <div class="profile-section" onclick="toggleProfileDropdown()">
                 <div class="profile-icon">
                     <i class="fas fa-user"></i>
@@ -36,6 +37,10 @@
                     <div class="dropdown-item" onclick="goToMyMatches()">
                         <i class="fas fa-trophy"></i>
                         <span>My Matches</span>
+                    </div>
+                    <div class="dropdown-item" onclick="openSupportChat()">
+                        <i class="fas fa-headset"></i>
+                        <span>Support</span>
                     </div>
                     <div class="dropdown-item logout-item" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
@@ -115,7 +120,7 @@
                             <h3>Total Balance</h3>
                         </div>
                         <div class="balance-amount">
-                            <span class="currency">$</span>
+                            <span class="currency">₹</span>
                             <span id="totalBalance">0.00</span>
                         </div>
                     </div>
@@ -128,7 +133,7 @@
                                 <h3>Deposit Amount</h3>
                             </div>
                             <div class="balance-amount">
-                                <span class="currency">$</span>
+                                <span class="currency">₹</span>
                                 <span id="depositBalance">0.00</span>
                             </div>
                             <div class="balance-description">
@@ -142,7 +147,7 @@
                                 <h3>Winning Amount</h3>
                             </div>
                             <div class="balance-amount">
-                                <span class="currency">$</span>
+                                <span class="currency">₹</span>
                                 <span id="winningBalance">0.00</span>
                             </div>
                             <div class="balance-description">
@@ -187,16 +192,16 @@
             </div>
 
             <div class="amount-options">
-                <button class="amount-btn" data-amount="10">$10</button>
-                <button class="amount-btn" data-amount="25">$25</button>
-                <button class="amount-btn" data-amount="50">$50</button>
-                <button class="amount-btn" data-amount="100">$100</button>
-                <button class="amount-btn" data-amount="250">$250</button>
-                <button class="amount-btn" data-amount="500">$500</button>
+                <button class="amount-btn" data-amount="10">₹10</button>
+                <button class="amount-btn" data-amount="25">₹25</button>
+                <button class="amount-btn" data-amount="50">₹50</button>
+                <button class="amount-btn" data-amount="100">₹100</button>
+                <button class="amount-btn" data-amount="250">₹250</button>
+                <button class="amount-btn" data-amount="500">₹500</button>
             </div>
 
             <div class="custom-amount">
-                <label for="customAmount">Or enter custom amount ($10 - $1000)</label>
+                <label for="customAmount">Or enter custom amount (₹10 - ₹1000)</label>
                 <input type="number" id="customAmount" min="10" max="1000" step="1" placeholder="Enter amount">
             </div>
 
@@ -220,17 +225,17 @@
             <div class="withdrawal-info">
                 <div class="info-item">
                     <span>Available Balance:</span>
-                    <span class="highlight" id="availableWithdrawBalance">$0.00</span>
+                    <span class="highlight" id="availableWithdrawBalance">₹0.00</span>
                 </div>
                 <div class="info-item">
                     <span>Minimum Withdrawal:</span>
-                    <span class="highlight">$20.00</span>
+                    <span class="highlight">₹20.00</span>
                 </div>
             </div>
 
             <div class="custom-amount">
                 <label for="withdrawAmount">Withdrawal Amount</label>
-                <input type="number" id="withdrawAmount" min="20" step="0.01" placeholder="Enter amount (min $20)">
+                <input type="number" id="withdrawAmount" min="20" step="0.01" placeholder="Enter amount (min ₹20)">
             </div>
 
             <div class="custom-amount">
@@ -302,6 +307,8 @@
 
             // Load wallet/profile data to update header and balance
             loadWalletData();
+
+
         });
 
         // Profile dropdown functionality
@@ -319,6 +326,7 @@
             const profileSection = document.querySelector('.profile-section');
             const dropdown = document.getElementById('profileDropdown');
 
+            // Updated to ignore clicks on the support icon wrapper if needed, but profileSection check handles its own area
             if (!profileSection.contains(e.target)) {
                 profileSection.classList.remove('active');
                 dropdown.classList.remove('active');
@@ -329,6 +337,13 @@
         function goToProfile() {
             window.location.href = 'profile.html';
         }
+
+        // Open support chat
+        function openSupportChat() {
+            window.location.href = 'user-chat.html';
+        }
+
+
 
         // Navigate to my matches
         function goToMyMatches() {
@@ -390,7 +405,7 @@
                     const stats = await ApiService.tournaments.getStats();
                     document.getElementById('total-tournaments').textContent = stats.totalTournaments || 0;
                     document.getElementById('total-players').textContent = stats.totalPlayers || 0;
-                    document.getElementById('total-prize').textContent = '$' + (stats.totalPrizePool || 0).toFixed(0);
+                    document.getElementById('total-prize').textContent = '₹' + (stats.totalPrizePool || 0).toFixed(0);
                 } catch (statsError) {
                     console.error('Error loading stats:', statsError);
                 }
@@ -568,14 +583,14 @@
                                 <div class="prize-entry">
                                     <div class="prize-label">ENTRY</div>
                                     <div class="prize-amount">
-                                        <span class="currency">$</span>
+                                        <span class="currency">₹</span>
                                         <span class="amount">${tournament.entryFee || 0}</span>
                                     </div>
                                 </div>
                                 <div class="prize-win">
                                     <div class="prize-label">WIN</div>
                                     <div class="prize-amount">
-                                        <span class="currency">$</span>
+                                        <span class="currency">₹</span>
                                         <span class="amount">${tournament.winningFee}</span>
                                     </div>
                                 </div>
@@ -654,9 +669,8 @@
                                     Free Fire ID <span class="required">*</span>
                                 </label>
                                 <input type="text" id="freeFireId" name="freeFireId" required
-                                       placeholder="Enter your Free Fire game ID"
-                                       pattern="[A-Za-z0-9]+" title="Please enter a valid Free Fire ID (letters and numbers only)">
-                                <small class="form-help">Your unique Free Fire player ID (letters and numbers)</small>
+                                       placeholder="Enter your Free Fire game ID">
+                                <small class="form-help">Your unique Free Fire player ID</small>
                             </div>
 
                             <div class="form-group" id="teamSelectionGroup" style="display: none;">
