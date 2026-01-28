@@ -572,7 +572,7 @@
                                     <i class="fas fa-clock"></i>
                                     <div class="info-content">
                                         <span class="info-label">Start Time</span>
-                                        <span class="info-value">${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        <span class="info-value">${new Date(tournament.startTime).toLocaleDateString('en-GB').replace(/\//g, '-')} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -945,7 +945,7 @@
                         <div class="match-info">
                             <div class="info-row">
                                 <i class="fas fa-calendar"></i>
-                                <span>${new Date(tournament.startTime).toLocaleDateString()} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span>${new Date(tournament.startTime).toLocaleDateString('en-GB').replace(/\//g, '-')} ${new Date(tournament.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                             <div class="info-row">
                                 <i class="fas fa-gamepad"></i>
@@ -979,7 +979,7 @@
                                 ` : ''}
                                 <div class="info-row">
                                     <i class="fas fa-clock"></i>
-                                    <span>Registered: ${tournament.registration?.registrationDate ? new Date(tournament.registration.registrationDate).toLocaleDateString() : 'Date not available'}</span>
+                                    <span>Registered: ${tournament.registration?.registrationDate ? new Date(tournament.registration.registrationDate).toLocaleDateString('en-GB').replace(/\//g, '-') : 'Date not available'}</span>
                                 </div>
                             </div>
                         </div>
@@ -1159,7 +1159,7 @@
             if (diffDays === 2) return 'Yesterday';
             if (diffDays <= 7) return `${diffDays - 1} days ago`;
 
-            return date.toLocaleDateString();
+            return date.toLocaleDateString('en-GB').replace(/\//g, '-');
         }
 
         function openDepositModal() {
